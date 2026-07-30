@@ -1,17 +1,25 @@
 /*
- * every layout is packed into one float texture (one row per layout), so the
- * morph is a texture fetch plus a mix in the vertex shader. adding a layout
- * costs a row, not a per-frame cpu pass over 48k positions.
+ * every layout is packed into one float texture and the morph is a texture fetch
+ * plus a mix in the vertex shader, so adding a layout costs a tile rather than a
+ * per-frame cpu pass over 48k positions.
+ *
+ * the layouts are tiled into a narrow grid (uTexW wide, uTileH rows each, stacked
+ * vertically) rather than one row per layout. one row per layout would need a
+ * texture COUNT texels wide, and 48000 blows past the 16384 MAX_TEXTURE_SIZE most
+ * GPUs report: the texture silently fails to upload, every fetch returns zero, and
+ * the whole field collapses onto the origin.
  */
 export const vertexShader = /* glsl */ `
 uniform sampler2D uLayouts;
 uniform float uLayoutRows;
+uniform float uTexW;
+uniform float uTileH;
 uniform float uMorph;
 uniform float uTime;
 uniform float uSize;
 uniform float uTurbulence;
 
-attribute float aU;
+attribute float aIndex;
 attribute float aSeed;
 
 varying float vGlow;
@@ -26,14 +34,20 @@ vec3 flow(vec3 p, float s) {
   ) * 0.5;
 }
 
+vec3 sampleLayout(float layer) {
+  float col = mod(aIndex, uTexW);
+  float row = floor(aIndex / uTexW);
+  float u = (col + 0.5) / uTexW;
+  float v = (layer * uTileH + row + 0.5) / (uLayoutRows * uTileH);
+  return texture2D(uLayouts, vec2(u, v)).xyz;
+}
+
 void main() {
   float i0 = floor(uMorph);
   float i1 = min(i0 + 1.0, uLayoutRows - 1.0);
   float t = smoothstep(0.0, 1.0, uMorph - i0);
 
-  vec3 from = texture2D(uLayouts, vec2(aU, (i0 + 0.5) / uLayoutRows)).xyz;
-  vec3 to = texture2D(uLayouts, vec2(aU, (i1 + 0.5) / uLayoutRows)).xyz;
-  vec3 p = mix(from, to, t);
+  vec3 p = mix(sampleLayout(i0), sampleLayout(i1), t);
 
   // swell outward at mid-transition so particles arc instead of sliding straight
   float burst = sin(t * 3.14159);
@@ -42,7 +56,9 @@ void main() {
 
   vec4 mv = modelViewMatrix * vec4(p, 1.0);
   gl_Position = projectionMatrix * mv;
-  gl_PointSize = uSize * (260.0 / -mv.z) * (0.55 + aSeed * 0.9);
+
+  // uSize is roughly the pixel size of an average point at the default camera distance
+  gl_PointSize = uSize * (8.0 / -mv.z) * (0.55 + aSeed * 0.9);
 
   vGlow = burst;
   vSeed = aSeed;
@@ -54,6 +70,7 @@ precision highp float;
 
 uniform vec3 uColorA;
 uniform vec3 uColorB;
+uniform float uOpacity;
 
 varying float vGlow;
 varying float vSeed;
@@ -66,8 +83,8 @@ void main() {
   alpha *= alpha;
 
   vec3 color = mix(uColorA, uColorB, vSeed);
-  color = mix(color, vec3(1.0), vGlow * 0.45 + alpha * 0.2);
+  color = mix(color, vec3(1.0), vGlow * 0.4);
 
-  gl_FragColor = vec4(color, alpha * 0.8);
+  gl_FragColor = vec4(color, alpha * 0.55 * uOpacity);
 }
 `

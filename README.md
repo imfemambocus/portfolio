@@ -1,5 +1,5 @@
 <p align="center">
-  <img src=".github/banner.svg" alt="Isfaaq Emambocus, R&D Specialist at the LCSB, University of Luxembourg" width="100%">
+  <img src=".github/banner.svg" alt="Isfaaq M. F. Emambocus, R&D Specialist at the LCSB, University of Luxembourg" width="100%">
 </p>
 
 # Portfolio
@@ -16,30 +16,46 @@ The interesting part is what *doesn't* happen. The particles are never re-create
 and their positions are never recalculated on the CPU while you scroll.
 
 Every form the field can take is generated once at startup and packed into a single floating-point
-`DataTexture`, one row per form. Scroll position is resolved to a fractional layout index, and the
-vertex shader fetches the two rows either side of it and mixes:
+`DataTexture`, each form occupying its own tile. Scroll position is resolved to a fractional layout
+index, and the vertex shader fetches the two tiles either side of it and mixes:
 
 ```glsl
 float i0 = floor(uMorph);
-float t = smoothstep(0.0, 1.0, uMorph - i0);
+float t  = smoothstep(0.0, 1.0, uMorph - i0);
 
-vec3 from = texture2D(uLayouts, vec2(aU, (i0 + 0.5) / uLayoutRows)).xyz;
-vec3 to   = texture2D(uLayouts, vec2(aU, (i1 + 0.5) / uLayoutRows)).xyz;
-vec3 p    = mix(from, to, t);
+vec3 p = mix(sampleLayout(i0), sampleLayout(i1), t);
+```
+
+The tiling matters more than it looks. The obvious packing is one row per form, but that makes the
+texture `COUNT` texels wide, and 48,000 is well past the 16,384 `MAX_TEXTURE_SIZE` most GPUs report.
+The upload fails silently, every fetch returns zero, and the entire field collapses onto the origin.
+So forms are tiled 256 texels wide and stacked instead, and the shader reconstructs the coordinate:
+
+```glsl
+vec3 sampleLayout(float layer) {
+  float col = mod(aIndex, uTexW);
+  float row = floor(aIndex / uTexW);
+  return texture2D(uLayouts, vec2(
+    (col + 0.5) / uTexW,
+    (layer * uTileH + row + 0.5) / (uLayoutRows * uTileH)
+  )).xyz;
+}
 ```
 
 Three consequences worth the trouble:
 
 - **Scrolling costs no per-frame CPU work.** No loop over 48,000 positions, no buffer re-upload.
   The only thing that changes between frames is one float uniform.
-- **Adding a section costs one texture row.** Layouts are plain functions returning a
-  `Float32Array`, so a new form is a new function in a list.
+- **Adding a section costs one tile.** Layouts are plain functions returning a `Float32Array`, so a
+  new form is a new function in a list.
 - **Particles arc instead of sliding.** A `sin(t * PI)` swell peaks at mid-transition and drives the
   points through curl-style flow noise, so they bloom outward and reconverge. This is the single
   detail that separates a morph that looks alive from one that looks like a tween.
 
 Forms are generated from a seeded PRNG, so they are art-directed rather than incidental: the same
-structure appears on every load.
+structure appears on every load. Each form also carries its own offset and opacity, interpolated
+with the same morph value, so the field steps aside for the type in the hero and drops right back in
+the reading-heavy sections.
 
 ## The forms are the content
 

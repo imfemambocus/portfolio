@@ -6,7 +6,7 @@ export function Profile() {
   const ref = useReveal<HTMLDivElement>()
 
   return (
-    <Section id="profile" className={`flex min-h-screen items-center ${PAD}`}>
+    <Section id="profile" className={`flex min-h-screen items-center py-32 ${PAD}`}>
       <div ref={ref} className="max-w-3xl">
         <p data-reveal className="label">
           01 / Profile

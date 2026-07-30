@@ -6,7 +6,7 @@ export function Skills() {
   const ref = useReveal<HTMLDivElement>()
 
   return (
-    <Section id="skills" className={`flex min-h-screen items-center ${PAD}`}>
+    <Section id="skills" className={`flex min-h-screen items-center py-32 ${PAD}`}>
       <div ref={ref} className="w-full">
         <p data-reveal className="label">
           03 / Toolkit

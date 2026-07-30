@@ -186,3 +186,20 @@ export const LAYOUTS: readonly Layout[] = [
   clumps,
   molecule,
 ]
+
+/*
+ * per-form art direction, interpolated with the same morph value as the positions.
+ * the hero and close forms sit right of centre so they do not fight the type, and
+ * the content-heavy sections dim the field right down: at full strength it reads as
+ * fog over the copy rather than atmosphere behind it.
+ */
+export type LayoutStyle = { readonly offsetX: number; readonly opacity: number }
+
+export const LAYOUT_STYLES: readonly LayoutStyle[] = [
+  { offsetX: 3.1, opacity: 1 },
+  { offsetX: 1.8, opacity: 0.6 },
+  { offsetX: 0.4, opacity: 0.32 },
+  { offsetX: 0, opacity: 0.42 },
+  { offsetX: 0, opacity: 0.4 },
+  { offsetX: 2.6, opacity: 0.9 },
+]

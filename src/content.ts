@@ -5,7 +5,9 @@
  */
 
 export const IDENTITY = {
-  name: 'Isfaaq Emambocus',
+  // the preferred written form everywhere public; fullName is for formal documents only
+  name: 'Isfaaq M. F. Emambocus',
+  fullName: 'Isfaaq Mohamed Fahiim Emambocus',
   role: 'R&D Specialist',
   org: 'Luxembourg Centre for Systems Biomedicine, University of Luxembourg',
   tagline: 'Full-stack developer. React, React Native, Vue and Laravel.',
