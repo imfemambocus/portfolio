@@ -93,6 +93,17 @@ npm run build      # typecheck, then production build
 npm run typecheck
 ```
 
+Or run the production build in a container, served by nginx on
+[localhost:8091](http://localhost:8091):
+
+```bash
+docker compose up -d --build
+docker compose down
+```
+
+That serves the built `dist/`, so there is no hot reload and changes need a rebuild. It is for
+checking the real production artifact rather than for development.
+
 ## Structure
 
 ```
