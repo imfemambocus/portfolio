@@ -3,6 +3,7 @@ import gsap from 'gsap'
 import { SplitText } from 'gsap/SplitText'
 import { HERO_META, IDENTITY } from '../content'
 import { prefersReducedMotion } from '../scroll'
+import { ThemeToggle } from '../ThemeToggle'
 import { PAD, Section } from './Section'
 
 gsap.registerPlugin(SplitText)
@@ -47,7 +48,8 @@ export function Hero() {
       gsap
         .timeline({ delay: 0.15 })
         .from('[data-rule]', { scaleX: 0, duration: 1.3, ease: 'power3.inOut', stagger: 0.1 })
-        .from(split.chars, { yPercent: 108, duration: 1.2, ease: 'expo.out', stagger: 0.055 }, 0.15)
+        // 135 not 108: the chars have to clear the padded mask, not just the line box
+        .from(split.chars, { yPercent: 135, duration: 1.2, ease: 'expo.out', stagger: 0.055 }, 0.15)
         .from(
           '[data-fade]',
           { y: 14, opacity: 0, duration: 0.8, ease: 'power3.out', stagger: 0.06 },
@@ -71,27 +73,42 @@ export function Hero() {
           <div data-rule className="h-px origin-left bg-haze" />
           <div className="flex items-start justify-between gap-6 pt-5">
             <div>
-              <p data-fade className="label text-paper">
+              <p data-fade className="label text-ink">
                 Emambocus
               </p>
               <p data-fade className="label mt-1.5">
                 {IDENTITY.role}, LCSB
               </p>
             </div>
-            <div className="text-right">
-              <p data-fade className="label">
-                Luxembourg
-              </p>
-              <p data-fade className="mt-1.5 font-mono text-sm tabular-nums text-paper">
-                {clock}
-              </p>
+            <div className="flex items-start gap-5">
+              <div className="text-right">
+                <p data-fade className="label">
+                  Luxembourg
+                </p>
+                <p data-fade className="mt-1.5 font-mono text-sm tabular-nums text-ink">
+                  {clock}
+                </p>
+              </div>
+              <div data-fade>
+                <ThemeToggle />
+              </div>
             </div>
           </div>
         </header>
 
         <h1 className="display my-8 text-[clamp(4rem,30vw,22rem)]">
           <span className="sr-only">{IDENTITY.fullName}</span>
-          <span aria-hidden="true" className="block overflow-hidden pb-[0.06em]">
+          {/*
+            the mask has to clear the glyphs, not hug the line box. Anton's ink overflows
+            its 0.82 line box by 0.034em at the top and 0.105em at the bottom (the Q tail),
+            so the padding pushes the clip edges past both and the negative margins cancel
+            it back out of the layout. overflow clips at the padding box, so this stays a
+            real mask: the chars still start fully outside it.
+          */}
+          <span
+            aria-hidden="true"
+            className="block overflow-hidden pt-[0.08em] pb-[0.16em] mt-[-0.08em] mb-[-0.16em]"
+          >
             <span data-name className="block">
               Isfaaq
             </span>
@@ -110,7 +127,7 @@ export function Hero() {
               {HERO_META.map((item) => (
                 <div key={item.id} data-fade>
                   <dt className="label">{item.label}</dt>
-                  <dd className="mt-1.5 text-paper">{item.value}</dd>
+                  <dd className="mt-1.5 text-ink">{item.value}</dd>
                 </div>
               ))}
             </dl>

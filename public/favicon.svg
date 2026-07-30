@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
-  <rect width="32" height="32" rx="7" fill="#07070a"/>
-  <g stroke="#5c7fa6" stroke-width="2" stroke-linecap="round" opacity="0.85">
-    <line x1="9.5" y1="22" x2="17" y2="11.5"/>
-    <line x1="17" y1="11.5" x2="24" y2="21"/>
-  </g>
-  <circle cx="17" cy="11.5" r="5.4" fill="#67e8f9"/>
-  <circle cx="9.5" cy="22" r="4" fill="#a78bfa"/>
-  <circle cx="24" cy="21" r="3.5" fill="#a5f3fc"/>
+  <style>
+    @media (prefers-color-scheme: dark) {
+      .tile { fill: #f6f6f3 }
+      .mark { fill: #07070a }
+    }
+  </style>
+  <rect class="tile" width="32" height="32" rx="7" fill="#07070a"/>
+  <path class="mark" d="M12.56 27.50L8.11 27.50L8.11 4.50L12.56 4.50L12.56 27.50M23.89 27.50L14.39 27.50L14.39 4.50L23.59 4.50L23.59 8.94L19.06 8.94L19.06 13.43L23.40 13.43L23.40 17.75L19.06 17.75L19.06 23.02L23.89 23.02" fill="#f6f6f3"/>
 </svg>

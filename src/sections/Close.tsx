@@ -43,7 +43,7 @@ export function Close() {
                 href={link.href}
                 target={link.id === 'email' ? undefined : '_blank'}
                 rel={link.id === 'email' ? undefined : 'noreferrer'}
-                className="mt-2 inline-block text-lg text-paper underline decoration-haze decoration-1 underline-offset-4 transition-colors hover:decoration-cyan"
+                className="mt-2 inline-block text-lg text-ink underline decoration-haze decoration-1 underline-offset-4 transition-colors hover:decoration-accent"
               >
                 {link.text}
               </a>

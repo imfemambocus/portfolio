@@ -13,7 +13,24 @@ gsap.registerPlugin(ScrollTrigger)
  * page progress, so a form stays settled while you read its section instead of
  * drifting the whole way down the page.
  */
-export const scroll = { progress: 0, morph: 0 }
+export const scroll = { progress: 0, morph: 0, max: 0 }
+
+const readers = new Set<() => void>()
+
+/* anything that needs to redraw on scroll subscribes here rather than adding a listener */
+export function onScroll(read: () => void) {
+  readers.add(read)
+  return () => {
+    readers.delete(read)
+  }
+}
+
+let lenis: Lenis | null = null
+
+export function scrollTo(position: number) {
+  if (lenis) lenis.scrollTo(position, { immediate: true })
+  else window.scrollTo(0, position)
+}
 
 export const prefersReducedMotion =
   typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -35,7 +52,9 @@ function measure() {
 
 function update(scrollY: number) {
   const max = document.documentElement.scrollHeight - window.innerHeight
+  scroll.max = max
   scroll.progress = max > 0 ? scrollY / max : 0
+  readers.forEach((read) => read())
 
   const last = bounds.length - 1
   if (last < 0) return
@@ -63,28 +82,31 @@ export function initScroll() {
   window.addEventListener('resize', onResize)
 
   if (prefersReducedMotion) {
-    const onScroll = () => update(window.scrollY)
-    window.addEventListener('scroll', onScroll, { passive: true })
+    const readNative = () => update(window.scrollY)
+    window.addEventListener('scroll', readNative, { passive: true })
     return () => {
-      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('scroll', readNative)
       window.removeEventListener('resize', onResize)
     }
   }
 
-  const lenis = new Lenis({ lerp: 0.085 })
-  lenis.on('scroll', () => {
-    update(lenis.scroll)
+  const instance = new Lenis({ lerp: 0.085 })
+  lenis = instance
+
+  instance.on('scroll', () => {
+    update(instance.scroll)
     ScrollTrigger.update()
   })
 
   // lenis drives off gsap's ticker so the two never run on separate clocks
-  const tick = (time: number) => lenis.raf(time * 1000)
+  const tick = (time: number) => instance.raf(time * 1000)
   gsap.ticker.add(tick)
   gsap.ticker.lagSmoothing(0)
 
   return () => {
     gsap.ticker.remove(tick)
-    lenis.destroy()
+    instance.destroy()
+    lenis = null
     window.removeEventListener('resize', onResize)
     ScrollTrigger.getAll().forEach((trigger) => trigger.kill())
   }

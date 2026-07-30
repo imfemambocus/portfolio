@@ -187,15 +187,16 @@ export const LAYOUTS: readonly Layout[] = [
 export type LayoutStyle = {
   readonly offsetX: number
   readonly offsetY: number
+  readonly scale: number
   readonly opacity: number
   readonly pointer: number
 }
 
 export const LAYOUT_STYLES: readonly LayoutStyle[] = [
-  { offsetX: 1.6, offsetY: -1.9, opacity: 1, pointer: 0.9 },
-  { offsetX: 1.8, offsetY: 0, opacity: 0.6, pointer: 0.5 },
-  { offsetX: 0.4, offsetY: 0, opacity: 0.32, pointer: 0.15 },
-  { offsetX: 0, offsetY: 0, opacity: 0.42, pointer: 0.2 },
-  { offsetX: 0, offsetY: 0, opacity: 0.4, pointer: 0.2 },
-  { offsetX: 2.6, offsetY: -0.5, opacity: 0.9, pointer: 0.8 },
+  { offsetX: 4.3, offsetY: -1.7, scale: 1.35, opacity: 1, pointer: 0.9 },
+  { offsetX: 1.8, offsetY: 0, scale: 1, opacity: 0.68, pointer: 0.5 },
+  { offsetX: 0.4, offsetY: 0, scale: 1, opacity: 0.44, pointer: 0.15 },
+  { offsetX: 0, offsetY: 0, scale: 1, opacity: 0.52, pointer: 0.2 },
+  { offsetX: 0, offsetY: 0, scale: 1, opacity: 0.5, pointer: 0.2 },
+  { offsetX: 2.6, offsetY: -0.5, scale: 1.1, opacity: 0.9, pointer: 0.8 },
 ]

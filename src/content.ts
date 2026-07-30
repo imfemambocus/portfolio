@@ -189,7 +189,7 @@ export const PROJECTS: readonly Project[] = [
     kind: 'Side project',
     year: '2026',
     stack: ['react-three-fiber', 'GLSL', 'GSAP', 'Lenis'],
-    body: 'Forty-eight thousand particles that never get replaced. Every form on this page is a tile in one float texture, and the morph between them happens entirely in a vertex shader, so scrolling costs no CPU work at all.',
+    body: 'Eighty thousand particles that never get replaced. Every form on this page is a tile in one float texture, and the morph between them happens entirely in a vertex shader, so scrolling costs no CPU work at all.',
   },
 ] as const
 
