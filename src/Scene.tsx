@@ -3,7 +3,7 @@ import { Bloom, EffectComposer } from '@react-three/postprocessing'
 import { ParticleField } from './particles/ParticleField'
 import { pointer } from './pointer'
 import { prefersReducedMotion } from './scroll'
-import { useTheme } from './theme'
+import { useRenderTheme } from './theme'
 
 function CameraDrift() {
   const camera = useThree((state) => state.camera)
@@ -19,7 +19,7 @@ function CameraDrift() {
 }
 
 export function Scene() {
-  const current = useTheme()
+  const current = useRenderTheme()
 
   return (
     <Canvas

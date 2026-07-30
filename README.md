@@ -146,6 +146,10 @@ on a light page it would be invisible. Light mode switches the material to norma
 bloom off, lifts the alpha to compensate, and flips the mid-transition flare to deepen rather than
 glow. The two themes are the same field rendered two different ways.
 
+Switching between them crossfades rather than snaps. The page colours interpolate, gradients
+included, and the field dips briefly and comes back, which is what covers the blending change
+underneath. Both are skipped if you prefer reduced motion.
+
 ## Reduced motion
 
 `prefers-reduced-motion` gets a genuinely different build rather than the animated site with the
@@ -154,6 +158,7 @@ motion switched off, which tends to leave content stranded at `opacity: 0`:
 - Lenis is skipped for native scroll, and the morph snaps instead of easing
 - Turbulence goes to zero and the particle count drops to 22,000
 - The Experience section renders as a plain stacked list instead of a sticky stepper
+- The cursor no longer perturbs the field, and the camera stops drifting
 
 All content lives in the DOM in reading order regardless of scroll state, there is a skip link, and
 the focus ring is visible.
