@@ -16,7 +16,13 @@ import {
   type Points as PointsObject,
 } from 'three'
 import { pointer } from '../pointer'
-import { onThemeChange, theme, type Theme } from '../theme'
+import {
+  THEME_FADE_MS,
+  onRenderThemeChange,
+  onThemeChange,
+  renderTheme,
+  type Theme,
+} from '../theme'
 import { LAYOUTS, LAYOUT_STYLES } from './layouts'
 import { rng } from './rng'
 import { fragmentShader, vertexShader } from './shaders'
@@ -42,11 +48,34 @@ const PALETTE: Record<Theme, { a: string; b: string; blending: Blending }> = {
   light: { a: '#17171c', b: '#2f3a40', blending: NormalBlending },
 }
 
+/*
+ * how far the field dips while the theme crosses over. not to zero: a full blink is more
+ * noticeable than the swap it hides. at 8% the difference between additive and normal is
+ * imperceptible even against the mid-grey the background passes through.
+ */
+const THEME_DIP = 0.08
+
+/* 1 at rest, easing down to THEME_DIP at the crossover and back up again */
+function themeDip(start: { current: number }) {
+  if (start.current < 0) return 1
+
+  const progress = (performance.now() - start.current) / THEME_FADE_MS
+  if (progress >= 2) {
+    start.current = -1
+    return 1
+  }
+
+  const distance = Math.abs(progress - 1)
+  const eased = distance * distance * (3 - 2 * distance)
+  return THEME_DIP + (1 - THEME_DIP) * eased
+}
+
 export function ParticleField() {
   const camera = useThree((state) => state.camera)
   const points = useRef<PointsObject>(null)
   const material = useRef<ShaderMaterial>(null)
   const morph = useRef(0)
+  const dipStart = useRef(-1)
   const cursor = useMemo(() => new Vector3(), [])
 
   const { geometry, layoutTexture } = useMemo(() => {
@@ -103,9 +132,9 @@ export function ParticleField() {
       uOpacity: { value: LAYOUT_STYLES[0].opacity },
       uPointer: { value: new Vector3(999, 999, 0) },
       uPointerStrength: { value: 0 },
-      uLightMode: { value: theme.current === 'light' ? 1 : 0 },
-      uColorA: { value: new Color(PALETTE[theme.current].a) },
-      uColorB: { value: new Color(PALETTE[theme.current].b) },
+      uLightMode: { value: renderTheme.current === 'light' ? 1 : 0 },
+      uColorA: { value: new Color(PALETTE[renderTheme.current].a) },
+      uColorB: { value: new Color(PALETTE[renderTheme.current].b) },
     }),
     [layoutTexture],
   )
@@ -123,8 +152,18 @@ export function ParticleField() {
       target.needsUpdate = true
     }
 
-    apply(theme.current)
-    return onThemeChange(apply)
+    apply(renderTheme.current)
+
+    // the dip runs off the toggle; the swap runs off renderTheme, at the bottom of it
+    const stopDip = onThemeChange(() => {
+      if (!prefersReducedMotion) dipStart.current = performance.now()
+    })
+    const stopSwap = onRenderThemeChange(apply)
+
+    return () => {
+      stopDip()
+      stopSwap()
+    }
   }, [])
 
   useEffect(
@@ -152,7 +191,8 @@ export function ParticleField() {
     const from = LAYOUT_STYLES[i0]
     const to = LAYOUT_STYLES[i1]
 
-    material.current.uniforms.uOpacity.value = from.opacity + (to.opacity - from.opacity) * t
+    material.current.uniforms.uOpacity.value =
+      (from.opacity + (to.opacity - from.opacity) * t) * themeDip(dipStart)
     const offsetX = from.offsetX + (to.offsetX - from.offsetX) * t
     const offsetY = from.offsetY + (to.offsetY - from.offsetY) * t
     const scale = from.scale + (to.scale - from.scale) * t

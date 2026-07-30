@@ -26,10 +26,58 @@
   --font-display: 'Anton', 'Arial Narrow', sans-serif;
 }
 
+/*
+ * registering the tokens is what makes a theme change ease instead of snap. an
+ * unregistered custom property is an untyped token and cannot be interpolated, so it
+ * jumps and takes every consumer with it. registered, the transition below eases all of
+ * them at once, gradients included, which matters because the scrim is a gradient and
+ * background-image is not transitionable any other way. browsers without @property just
+ * get the old instant swap.
+ */
+@property --color-paper {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #07070a;
+}
+@property --color-ink {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #f6f6f3;
+}
+@property --color-mist {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #8a8a85;
+}
+@property --color-haze {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #26262a;
+}
+@property --color-accent {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #23a8cc;
+}
+
 /* dark is the default, so it is the base and light is the override: a visitor with no
    stored choice, or with javascript off, gets dark rather than a flash of the wrong one */
 :root {
   color-scheme: dark;
+
+  /* twice THEME_FADE_MS in theme.ts, so the DOM and the field land together */
+  transition:
+    --color-paper 440ms ease,
+    --color-ink 440ms ease,
+    --color-mist 440ms ease,
+    --color-haze 440ms ease,
+    --color-accent 440ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    transition: none;
+  }
 }
 
 :root[data-theme='light'] {

@@ -193,10 +193,10 @@ export type LayoutStyle = {
 }
 
 export const LAYOUT_STYLES: readonly LayoutStyle[] = [
-  { offsetX: 4.3, offsetY: -1.7, scale: 1.35, opacity: 1, pointer: 0.9 },
-  { offsetX: 1.8, offsetY: 0, scale: 1, opacity: 0.68, pointer: 0.5 },
-  { offsetX: 0.4, offsetY: 0, scale: 1, opacity: 0.44, pointer: 0.15 },
-  { offsetX: 0, offsetY: 0, scale: 1, opacity: 0.52, pointer: 0.2 },
-  { offsetX: 0, offsetY: 0, scale: 1, opacity: 0.5, pointer: 0.2 },
-  { offsetX: 2.6, offsetY: -0.5, scale: 1.1, opacity: 0.9, pointer: 0.8 },
+  { offsetX: 4.3, offsetY: -1.7, scale: 1.35, opacity: 1, pointer: 0.2 },
+  { offsetX: 1.8, offsetY: 0, scale: 1, opacity: 0.68, pointer: 0.12 },
+  { offsetX: 0.4, offsetY: 0, scale: 1, opacity: 0.44, pointer: 0.05 },
+  { offsetX: 0, offsetY: 0, scale: 1, opacity: 0.52, pointer: 0.06 },
+  { offsetX: 0, offsetY: 0, scale: 1, opacity: 0.5, pointer: 0.06 },
+  { offsetX: 2.6, offsetY: -0.5, scale: 1.1, opacity: 0.9, pointer: 0.18 },
 ]
