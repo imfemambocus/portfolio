@@ -40,7 +40,7 @@ export function Scene() {
       <ParticleField />
       {!prefersReducedMotion && <CameraDrift />}
       <EffectComposer>
-        <Bloom intensity={1.15} luminanceThreshold={0.1} luminanceSmoothing={0.5} mipmapBlur />
+        <Bloom intensity={0.85} luminanceThreshold={0.25} luminanceSmoothing={0.4} mipmapBlur />
       </EffectComposer>
     </Canvas>
   )

@@ -90,7 +90,7 @@ for (let i = 0; i < 150; i++) {
 points.sort((p, q) => p[2] - q[2])
 
 // the type block, in svg coords. strays drifting over it read as dirt, not atmosphere
-const TEXT = { x1: 60, y1: 112, x2: 700, y2: 348 }
+const TEXT = { x1: 55, y1: 78, x2: 715, y2: 380 }
 
 const circles = points
   .map(([px, py, pz, stray]) => {
@@ -110,7 +110,7 @@ const circles = points
   .join('')
 
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-labelledby="t">
-<title id="t">Isfaaq Emambocus, R and D Specialist at the LCSB, University of Luxembourg</title>
+<title id="t">Isfaaq M. F. Emambocus, R and D Specialist at the LCSB, University of Luxembourg</title>
 <defs>
 <radialGradient id="glow" cx="72%" cy="50%" r="58%">
 <stop offset="0%" stop-color="#5b3fa8" stop-opacity="0.5"/>
@@ -125,11 +125,12 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" 
 <rect width="${W}" height="${H}" fill="#07070a"/>
 <rect width="${W}" height="${H}" fill="url(#glow)"/>
 <g>${circles}</g>
-<text x="84" y="176" font-family="Iowan Old Style, Palatino, Georgia, serif" font-size="74" fill="#f4f4f6" letter-spacing="-1">Isfaaq Emambocus</text>
-<rect x="86" y="206" width="300" height="1" fill="url(#rule)"/>
-<text x="84" y="246" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14" fill="#8b8b9a" letter-spacing="3.4">R&amp;D SPECIALIST &#183; LCSB, UNIVERSITY OF LUXEMBOURG</text>
-<text x="84" y="304" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13" fill="#67e8f9" letter-spacing="1.6">48,000 particles &#183; one vertex shader &#183; six forms</text>
-<text x="84" y="330" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13" fill="#5a5a6e" letter-spacing="1.6">react-three-fiber &#183; GLSL &#183; GSAP &#183; Lenis &#183; Vite</text>
+<text x="84" y="152" font-family="Iowan Old Style, Palatino, Georgia, serif" font-size="76" fill="#f4f4f6" letter-spacing="-1">Isfaaq M. F.</text>
+<text x="84" y="224" font-family="Iowan Old Style, Palatino, Georgia, serif" font-size="76" fill="#f4f4f6" letter-spacing="-1">Emambocus</text>
+<rect x="86" y="256" width="300" height="1" fill="url(#rule)"/>
+<text x="84" y="296" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14" fill="#8b8b9a" letter-spacing="3.4">R&amp;D SPECIALIST &#183; LCSB, UNIVERSITY OF LUXEMBOURG</text>
+<text x="84" y="348" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13" fill="#67e8f9" letter-spacing="1.6">48,000 particles &#183; one vertex shader &#183; six forms</text>
+<text x="84" y="374" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13" fill="#5a5a6e" letter-spacing="1.6">react-three-fiber &#183; GLSL &#183; GSAP &#183; Lenis &#183; Vite</text>
 </svg>
 `
 

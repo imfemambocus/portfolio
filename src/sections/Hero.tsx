@@ -48,7 +48,7 @@ export function Hero() {
         </p>
 
         <h1 className="display mt-7 text-[clamp(3rem,12vw,10rem)]">
-          Isfaaq
+          Isfaaq M. F.
           <br />
           Emambocus
         </h1>
