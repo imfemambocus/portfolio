@@ -12,7 +12,7 @@ export function Skills() {
           03 / Toolkit
         </p>
 
-        <h2 data-reveal className="display mt-8 max-w-2xl text-4xl sm:text-6xl">
+        <h2 data-reveal className="heading mt-8 max-w-2xl text-4xl sm:text-6xl">
           Frontend-leaning, full-stack by necessity
         </h2>
 

@@ -19,7 +19,7 @@ export function Projects() {
               className="flex flex-col border-t border-haze pt-7 backdrop-blur-[2px]"
             >
               <div className="flex items-baseline justify-between gap-4">
-                <h3 className="display text-3xl sm:text-4xl">{project.name}</h3>
+                <h3 className="heading text-3xl sm:text-4xl">{project.name}</h3>
                 <span className="label shrink-0">{project.year}</span>
               </div>
 

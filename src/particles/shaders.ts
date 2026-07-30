@@ -18,6 +18,8 @@ uniform float uMorph;
 uniform float uTime;
 uniform float uSize;
 uniform float uTurbulence;
+uniform vec3 uPointer;
+uniform float uPointerStrength;
 
 attribute float aIndex;
 attribute float aSeed;
@@ -53,6 +55,11 @@ void main() {
   float burst = sin(t * 3.14159);
   p += flow(p * 0.4 + uTime * 0.05, aSeed) * burst * uTurbulence;
   p += flow(p * 0.9 - uTime * 0.03, aSeed * 1.7) * 0.05;
+
+  // the field opens around the cursor, strongest on the forms that have room for it
+  vec2 away = p.xy - uPointer.xy;
+  float dist = max(length(away), 0.0001);
+  p.xy += (away / dist) * smoothstep(2.8, 0.0, dist) * uPointerStrength;
 
   vec4 mv = modelViewMatrix * vec4(p, 1.0);
   gl_Position = projectionMatrix * mv;

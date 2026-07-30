@@ -16,6 +16,12 @@ export const IDENTITY = {
   linkedin: 'https://www.linkedin.com/in/isfaaqemambocus-softwareengineer/',
 } as const
 
+export const HERO_META = [
+  { id: 'experience', label: 'Experience', value: '7+ years' },
+  { id: 'based', label: 'Based', value: 'Luxembourg' },
+  { id: 'stack', label: 'Stack', value: 'React, Vue, Laravel' },
+] as const
+
 export const PROFILE = [
   'Seven years building production web applications, from a Mauritian web agency shipping sixty sites a month to enterprise frontends for Volkswagen, Pampers and Novartis.',
   'Now at the LCSB, building data-heavy interfaces for biomedical research. Frontend-leaning, but I own products end to end.',
@@ -25,6 +31,8 @@ export type Role = {
   readonly id: string
   readonly title: string
   readonly org: string
+  // short form for the progress rail, which has no room for a full institution name
+  readonly short: string
   readonly place: string
   readonly period: string
   readonly note?: string
@@ -36,6 +44,7 @@ export const ROLES: readonly Role[] = [
     id: 'lcsb',
     title: 'R&D Specialist',
     org: 'Luxembourg Centre for Systems Biomedicine',
+    short: 'LCSB',
     place: 'University of Luxembourg',
     period: 'Apr 2026 to present',
     points: [
@@ -48,6 +57,7 @@ export const ROLES: readonly Role[] = [
     id: 'gac',
     title: 'Developer',
     org: 'GAC Software',
+    short: 'GAC Software',
     place: 'Mauritius',
     period: 'Oct 2025 to Mar 2026',
     points: [
@@ -60,6 +70,7 @@ export const ROLES: readonly Role[] = [
     id: 'elca',
     title: 'Senior Frontend Engineer',
     org: 'ELCA',
+    short: 'ELCA',
     place: 'Mauritius',
     period: 'Jan 2024 to Aug 2024',
     points: [
@@ -72,6 +83,7 @@ export const ROLES: readonly Role[] = [
     id: 'rapp',
     title: 'Senior Frontend Engineer',
     org: 'RAPP Indian Ocean',
+    short: 'RAPP',
     place: 'Mauritius',
     period: 'Feb 2022 to Jan 2024',
     points: [
@@ -84,6 +96,7 @@ export const ROLES: readonly Role[] = [
     id: 'imfe',
     title: 'Software Engineer, freelance',
     org: 'IMFE Studio',
+    short: 'IMFE Studio',
     place: 'Mauritius',
     period: 'Feb 2019 to Feb 2022',
     note: 'Alongside the Linkeo role',
@@ -97,6 +110,7 @@ export const ROLES: readonly Role[] = [
     id: 'linkeo',
     title: 'Team Leader, Webmaster',
     org: 'Linkeo',
+    short: 'Linkeo',
     place: 'Mauritius',
     period: 'Feb 2019 to Feb 2022',
     points: [
@@ -175,7 +189,7 @@ export const PROJECTS: readonly Project[] = [
     kind: 'Side project',
     year: '2026',
     stack: ['react-three-fiber', 'GLSL', 'GSAP', 'Lenis'],
-    body: 'Forty-eight thousand particles that never get replaced. Every form on this page is a row in one float texture, and the morph between them happens entirely in a vertex shader, so scrolling costs no CPU work at all.',
+    body: 'Forty-eight thousand particles that never get replaced. Every form on this page is a tile in one float texture, and the morph between them happens entirely in a vertex shader, so scrolling costs no CPU work at all.',
   },
 ] as const
 

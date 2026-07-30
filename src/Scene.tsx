@@ -1,20 +1,8 @@
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { Bloom, EffectComposer } from '@react-three/postprocessing'
 import { ParticleField } from './particles/ParticleField'
+import { pointer } from './pointer'
 import { prefersReducedMotion } from './scroll'
-
-const pointer = { x: 0, y: 0 }
-
-if (typeof window !== 'undefined') {
-  window.addEventListener(
-    'pointermove',
-    (event) => {
-      pointer.x = (event.clientX / window.innerWidth) * 2 - 1
-      pointer.y = (event.clientY / window.innerHeight) * 2 - 1
-    },
-    { passive: true },
-  )
-}
 
 function CameraDrift() {
   const camera = useThree((state) => state.camera)
@@ -32,7 +20,7 @@ function CameraDrift() {
 export function Scene() {
   return (
     <Canvas
-      className="!fixed inset-0"
+      className="fixed! inset-0"
       camera={{ position: [0, 0, 9], fov: 52 }}
       dpr={[1, 1.75]}
       gl={{ antialias: false, powerPreference: 'high-performance' }}

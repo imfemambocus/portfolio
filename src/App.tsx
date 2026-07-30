@@ -33,7 +33,7 @@ export function App() {
       {/* guarantees contrast for the copy no matter what the field is doing behind it */}
       <div
         aria-hidden="true"
-        className="pointer-events-none fixed inset-0 z-5 bg-gradient-to-r from-ink from-10% via-ink/85 via-45% to-transparent"
+        className="pointer-events-none fixed inset-0 z-5 bg-linear-to-r from-ink from-10% via-ink/85 via-45% to-transparent"
       />
 
       <main className="relative z-10">

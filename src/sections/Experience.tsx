@@ -8,7 +8,7 @@ function RoleBody({ role }: { readonly role: Role }) {
   return (
     <>
       <p className="label">{role.period}</p>
-      <h3 className="display mt-5 text-3xl sm:text-5xl lg:text-6xl">{role.title}</h3>
+      <h3 className="heading mt-5 text-3xl sm:text-5xl lg:text-6xl">{role.title}</h3>
       <p className="mt-3 text-lg text-cyan">
         {role.org}
         <span className="text-mist">, {role.place}</span>
@@ -49,22 +49,21 @@ function Stepper() {
     const el = tall.current
     if (!el) return
 
-    const trigger = gsap.timeline({
-      scrollTrigger: {
-        trigger: el,
-        start: 'top top',
-        end: 'bottom bottom',
-        onUpdate: (self) => {
-          const index = Math.floor(self.progress * ROLES.length)
-          setActive(Math.min(Math.max(index, 0), ROLES.length - 1))
+    const ctx = gsap.context(() => {
+      gsap.timeline({
+        scrollTrigger: {
+          trigger: el,
+          start: 'top top',
+          end: 'bottom bottom',
+          onUpdate: (self) => {
+            const index = Math.floor(self.progress * ROLES.length)
+            setActive(Math.min(Math.max(index, 0), ROLES.length - 1))
+          },
         },
-      },
-    })
+      })
+    }, el)
 
-    return () => {
-      trigger.scrollTrigger?.kill()
-      trigger.kill()
-    }
+    return () => ctx.revert()
   }, [])
 
   return (
@@ -73,7 +72,7 @@ function Stepper() {
         <div className="w-full">
           <p className="label">02 / Experience</p>
 
-          <div className="relative mt-10 min-h-[26rem]">
+          <div className="relative mt-10 min-h-104">
             {ROLES.map((role, index) => (
               <article
                 key={role.id}
@@ -98,7 +97,7 @@ function Stepper() {
                 className="font-mono text-[0.625rem] tracking-widest transition-opacity duration-500"
                 style={{ opacity: index === active ? 1 : 0 }}
               >
-                {role.org}
+                {role.short}
               </span>
               <span
                 aria-hidden="true"
