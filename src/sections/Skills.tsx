@@ -19,7 +19,7 @@ export function Skills() {
         <div data-reveal className="mt-16 grid gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
           {SKILL_CLUSTERS.map((cluster) => (
             <div key={cluster.id}>
-              <h3 className="label border-b border-haze pb-3 text-paper">{cluster.label}</h3>
+              <h3 className="label border-b border-haze pb-3 text-ink">{cluster.label}</h3>
               <ul className="mt-5 space-y-2">
                 {cluster.items.map((item) => (
                   <li key={item} className="text-mist">

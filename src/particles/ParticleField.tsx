@@ -8,26 +8,39 @@ import {
   DataTexture,
   FloatType,
   NearestFilter,
+  NormalBlending,
   RGBAFormat,
   ShaderMaterial,
   Vector3,
+  type Blending,
   type Points as PointsObject,
 } from 'three'
 import { pointer } from '../pointer'
+import { onThemeChange, theme, type Theme } from '../theme'
 import { LAYOUTS, LAYOUT_STYLES } from './layouts'
 import { rng } from './rng'
 import { fragmentShader, vertexShader } from './shaders'
 import { prefersReducedMotion, scroll } from '../scroll'
 
-const COUNT = prefersReducedMotion ? 14000 : 48000
+const COUNT = prefersReducedMotion ? 22000 : 80000
 
 /*
  * layouts are tiled into a narrow grid instead of one row each: a row-per-layout
- * texture would be COUNT texels wide, and 48000 exceeds the 16384 MAX_TEXTURE_SIZE
+ * texture would be COUNT texels wide, and 80000 exceeds the 16384 MAX_TEXTURE_SIZE
  * most GPUs report, so the upload fails and every particle collapses to the origin.
  */
 const TEX_W = 256
 const TILE_H = Math.ceil(COUNT / TEX_W)
+
+/*
+ * light mode is not just a palette swap. additive blending only ever brightens, so on
+ * an off-white page it does nothing at all: dark particles need normal blending, and
+ * bloom is switched off in Scene for the same reason.
+ */
+const PALETTE: Record<Theme, { a: string; b: string; blending: Blending }> = {
+  dark: { a: '#f6f6f3', b: '#bfcbd2', blending: AdditiveBlending },
+  light: { a: '#17171c', b: '#2f3a40', blending: NormalBlending },
+}
 
 export function ParticleField() {
   const camera = useThree((state) => state.camera)
@@ -90,11 +103,29 @@ export function ParticleField() {
       uOpacity: { value: LAYOUT_STYLES[0].opacity },
       uPointer: { value: new Vector3(999, 999, 0) },
       uPointerStrength: { value: 0 },
-      uColorA: { value: new Color('#67e8f9') },
-      uColorB: { value: new Color('#a78bfa') },
+      uLightMode: { value: theme.current === 'light' ? 1 : 0 },
+      uColorA: { value: new Color(PALETTE[theme.current].a) },
+      uColorB: { value: new Color(PALETTE[theme.current].b) },
     }),
     [layoutTexture],
   )
+
+  useEffect(() => {
+    const apply = (next: Theme) => {
+      const target = material.current
+      if (!target) return
+
+      const palette = PALETTE[next]
+      target.uniforms.uColorA.value.set(palette.a)
+      target.uniforms.uColorB.value.set(palette.b)
+      target.uniforms.uLightMode.value = next === 'light' ? 1 : 0
+      target.blending = palette.blending
+      target.needsUpdate = true
+    }
+
+    apply(theme.current)
+    return onThemeChange(apply)
+  }, [])
 
   useEffect(
     () => () => {
@@ -124,10 +155,12 @@ export function ParticleField() {
     material.current.uniforms.uOpacity.value = from.opacity + (to.opacity - from.opacity) * t
     const offsetX = from.offsetX + (to.offsetX - from.offsetX) * t
     const offsetY = from.offsetY + (to.offsetY - from.offsetY) * t
+    const scale = from.scale + (to.scale - from.scale) * t
 
     if (points.current) {
       points.current.position.x = offsetX
       points.current.position.y = offsetY
+      points.current.scale.setScalar(scale)
       points.current.rotation.y += delta * 0.02
     }
 
@@ -135,13 +168,14 @@ export function ParticleField() {
 
     /*
      * where the cursor crosses the z=0 plane, in the field's own space. the field is
-     * translated by offsetX, so that has to come back off before the shader sees it.
+     * moved and scaled by its layout style, so both have to come back off before the
+     * shader sees it, or the repulsion drifts away from the actual cursor.
      */
     cursor.set(pointer.x, -pointer.y, 0.5).unproject(camera).sub(camera.position).normalize()
     const travel = -camera.position.z / cursor.z
     cursor.multiplyScalar(travel).add(camera.position)
-    cursor.x -= offsetX
-    cursor.y -= offsetY
+    cursor.x = (cursor.x - offsetX) / scale
+    cursor.y = (cursor.y - offsetY) / scale
 
     material.current.uniforms.uPointer.value.copy(cursor)
     material.current.uniforms.uPointerStrength.value =

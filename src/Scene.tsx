@@ -3,6 +3,7 @@ import { Bloom, EffectComposer } from '@react-three/postprocessing'
 import { ParticleField } from './particles/ParticleField'
 import { pointer } from './pointer'
 import { prefersReducedMotion } from './scroll'
+import { useTheme } from './theme'
 
 function CameraDrift() {
   const camera = useThree((state) => state.camera)
@@ -18,6 +19,8 @@ function CameraDrift() {
 }
 
 export function Scene() {
+  const current = useTheme()
+
   return (
     <Canvas
       className="fixed! inset-0"
@@ -27,9 +30,13 @@ export function Scene() {
     >
       <ParticleField />
       {!prefersReducedMotion && <CameraDrift />}
-      <EffectComposer>
-        <Bloom intensity={0.85} luminanceThreshold={0.25} luminanceSmoothing={0.4} mipmapBlur />
-      </EffectComposer>
+
+      {/* bloom only brightens, so on an off-white page it washes the field out instead of glowing */}
+      {current === 'dark' && (
+        <EffectComposer>
+          <Bloom intensity={0.85} luminanceThreshold={0.25} luminanceSmoothing={0.4} mipmapBlur />
+        </EffectComposer>
+      )}
     </Canvas>
   )
 }

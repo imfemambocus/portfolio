@@ -23,7 +23,7 @@ export function Projects() {
                 <span className="label shrink-0">{project.year}</span>
               </div>
 
-              <p className="mt-2 text-sm text-violet">{project.kind}</p>
+              <p className="mt-2 text-sm text-accent">{project.kind}</p>
               <p className="mt-5 leading-relaxed text-mist">{project.body}</p>
 
               <ul className="mt-7 flex flex-wrap gap-2">

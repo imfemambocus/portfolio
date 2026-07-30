@@ -1,10 +1,10 @@
 <p align="center">
-  <img src=".github/banner.svg" alt="Isfaaq M. F. Emambocus, R&D Specialist at the LCSB, University of Luxembourg" width="100%">
+  <img src=".github/banner.png" alt="Isfaaq M. F. Emambocus, R&D Specialist at the LCSB, University of Luxembourg. Split diagonally to show the site in light and dark mode." width="100%">
 </p>
 
 # Portfolio
 
-A single-page, scroll-driven portfolio. One particle field of 48,000 points takes a different form
+A single-page, scroll-driven portfolio. One particle field of 80,000 points takes a different form
 for each section of the page, so a single element appears to evolve the whole way down rather than
 each section animating on its own.
 
@@ -27,7 +27,7 @@ vec3 p = mix(sampleLayout(i0), sampleLayout(i1), t);
 ```
 
 The tiling matters more than it looks. The obvious packing is one row per form, but that makes the
-texture `COUNT` texels wide, and 48,000 is well past the 16,384 `MAX_TEXTURE_SIZE` most GPUs report.
+texture `COUNT` texels wide, and 80,000 is well past the 16,384 `MAX_TEXTURE_SIZE` most GPUs report.
 The upload fails silently, every fetch returns zero, and the entire field collapses onto the origin.
 So forms are tiled 256 texels wide and stacked instead, and the shader reconstructs the coordinate:
 
@@ -44,7 +44,7 @@ vec3 sampleLayout(float layer) {
 
 Three consequences worth the trouble:
 
-- **Scrolling costs no per-frame CPU work.** No loop over 48,000 positions, no buffer re-upload.
+- **Scrolling costs no per-frame CPU work.** No loop over 80,000 positions, no buffer re-upload.
   The only thing that changes between frames is one float uniform.
 - **Adding a section costs one tile.** Layouts are plain functions returning a `Float32Array`, so a
   new form is a new function in a list.
@@ -76,7 +76,7 @@ when the content changes rather than needing to be retuned by hand.
 | | |
 | --- | --- |
 | Build | Vite, React 19, TypeScript |
-| 3D | react-three-fiber, three, custom GLSL, selective bloom |
+| 3D | react-three-fiber, three, custom GLSL, bloom in dark mode |
 | Motion | GSAP with ScrollTrigger and SplitText, Lenis |
 | Styling | Tailwind v4 |
 | Type | Anton, Geist, Geist Mono, self-hosted |
@@ -100,7 +100,9 @@ src/
   content.ts              all copy and CV data in one place
   scroll.ts               the only scroll listener in the app
   pointer.ts              the only pointer listener in the app
+  theme.ts                light and dark, shared by the DOM and the canvas
   Scene.tsx               canvas, camera drift, bloom
+  Scrollbar.tsx           the floating scrollbar, drawn rather than styled
   particles/
     layouts.ts            the six forms
     shaders.ts            the morph
@@ -127,11 +129,22 @@ the text never waits on it.
 
 | Chunk | Gzipped |
 | --- | --- |
-| Initial (React, GSAP, Lenis, content) | 118 kB |
-| Scene (three, postprocessing) | 253 kB |
+| Initial (React, GSAP, Lenis, content) | 120 kB |
+| Scene (three, postprocessing) | 254 kB |
 
-`dpr` is capped at 1.75 and antialiasing is off, since bloom on additive points hides the aliasing
-anyway.
+`dpr` is capped at 1.75 and antialiasing is off. The particles are soft-edged in the fragment shader
+rather than by the hardware, so there are no hard edges for it to smooth.
+
+## Light and dark
+
+The site opens dark and remembers what you pick from the toggle in the hero. Both themes are
+off-white and off-black rather than pure, and the particle field takes the same neutral as the body
+text in each: dark on light, off-white on dark.
+
+It is not a palette swap. The field is drawn with additive blending, which only ever brightens, so
+on a light page it would be invisible. Light mode switches the material to normal blending, turns
+bloom off, lifts the alpha to compensate, and flips the mid-transition flare to deepen rather than
+glow. The two themes are the same field rendered two different ways.
 
 ## Reduced motion
 
@@ -139,7 +152,7 @@ anyway.
 motion switched off, which tends to leave content stranded at `opacity: 0`:
 
 - Lenis is skipped for native scroll, and the morph snaps instead of easing
-- Turbulence goes to zero and the particle count drops to 14,000
+- Turbulence goes to zero and the particle count drops to 22,000
 - The Experience section renders as a plain stacked list instead of a sticky stepper
 
 All content lives in the DOM in reading order regardless of scroll state, there is a skip link, and

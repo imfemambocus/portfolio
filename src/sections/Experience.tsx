@@ -9,7 +9,7 @@ function RoleBody({ role }: { readonly role: Role }) {
     <>
       <p className="label">{role.period}</p>
       <h3 className="heading mt-5 text-3xl sm:text-5xl lg:text-6xl">{role.title}</h3>
-      <p className="mt-3 text-lg text-cyan">
+      <p className="mt-3 text-lg text-accent">
         {role.org}
         <span className="text-mist">, {role.place}</span>
       </p>
@@ -17,7 +17,7 @@ function RoleBody({ role }: { readonly role: Role }) {
       <ul className="mt-7 max-w-xl space-y-3">
         {role.points.map((point) => (
           <li key={point.slice(0, 28)} className="flex gap-3 text-mist">
-            <span aria-hidden="true" className="mt-2 size-1 shrink-0 rounded-full bg-violet" />
+            <span aria-hidden="true" className="mt-2 size-1 shrink-0 rounded-full bg-accent" />
             <span className="leading-relaxed">{point}</span>
           </li>
         ))}
@@ -104,7 +104,7 @@ function Stepper() {
                 className="h-px transition-all duration-500"
                 style={{
                   width: index === active ? '2.5rem' : '1rem',
-                  background: index === active ? 'var(--color-cyan)' : 'var(--color-haze)',
+                  background: index === active ? 'var(--color-accent)' : 'var(--color-haze)',
                 }}
               />
             </li>

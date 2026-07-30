@@ -1,11 +1,11 @@
 /*
  * every layout is packed into one float texture and the morph is a texture fetch
  * plus a mix in the vertex shader, so adding a layout costs a tile rather than a
- * per-frame cpu pass over 48k positions.
+ * per-frame cpu pass over 80k positions.
  *
  * the layouts are tiled into a narrow grid (uTexW wide, uTileH rows each, stacked
  * vertically) rather than one row per layout. one row per layout would need a
- * texture COUNT texels wide, and 48000 blows past the 16384 MAX_TEXTURE_SIZE most
+ * texture COUNT texels wide, and 80000 blows past the 16384 MAX_TEXTURE_SIZE most
  * GPUs report: the texture silently fails to upload, every fetch returns zero, and
  * the whole field collapses onto the origin.
  */
@@ -78,6 +78,7 @@ precision highp float;
 uniform vec3 uColorA;
 uniform vec3 uColorB;
 uniform float uOpacity;
+uniform float uLightMode;
 
 varying float vGlow;
 varying float vSeed;
@@ -90,8 +91,12 @@ void main() {
   alpha *= alpha;
 
   vec3 color = mix(uColorA, uColorB, vSeed);
-  color = mix(color, vec3(1.0), vGlow * 0.4);
 
-  gl_FragColor = vec4(color, alpha * 0.55 * uOpacity);
+  // the mid-transition burst brightens on dark and deepens on light, where pushing
+  // toward white would make the particles dissolve into the page instead of flaring
+  color = mix(color, mix(vec3(1.0), vec3(0.0), uLightMode), vGlow * 0.4);
+
+  // light needs more alpha than dark: normal blending accumulates far more gently than additive
+  gl_FragColor = vec4(color, alpha * mix(0.55, 0.85, uLightMode) * uOpacity);
 }
 `

@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect } from 'react'
 import { initScroll } from './scroll'
+import { Scrollbar } from './Scrollbar'
 import { Close } from './sections/Close'
 import { Experience } from './sections/Experience'
 import { Hero } from './sections/Hero'
@@ -21,7 +22,7 @@ export function App() {
     <>
       <a
         href="#profile"
-        className="absolute top-4 left-4 z-50 -translate-y-24 rounded bg-paper px-4 py-2 text-sm text-ink focus:translate-y-0"
+        className="absolute top-4 left-4 z-50 -translate-y-24 rounded bg-ink px-4 py-2 text-sm text-paper focus:translate-y-0"
       >
         Skip to content
       </a>
@@ -33,7 +34,7 @@ export function App() {
       {/* guarantees contrast for the copy no matter what the field is doing behind it */}
       <div
         aria-hidden="true"
-        className="pointer-events-none fixed inset-0 z-5 bg-linear-to-r from-ink from-10% via-ink/85 via-45% to-transparent"
+        className="pointer-events-none fixed inset-0 z-5 bg-linear-to-r from-paper from-10% via-paper/85 via-45% to-transparent"
       />
 
       <main className="relative z-10">
@@ -44,6 +45,8 @@ export function App() {
         <Projects />
         <Close />
       </main>
+
+      <Scrollbar />
     </>
   )
 }
