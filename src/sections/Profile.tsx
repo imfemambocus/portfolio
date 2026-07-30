@@ -18,7 +18,7 @@ export function Profile() {
             data-reveal
             className={
               index === 0
-                ? 'display mt-8 text-3xl sm:text-5xl lg:text-6xl'
+                ? 'heading mt-8 text-3xl sm:text-5xl lg:text-6xl'
                 : 'mt-8 max-w-xl text-lg leading-relaxed text-mist'
             }
           >

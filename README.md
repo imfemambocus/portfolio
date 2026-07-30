@@ -53,9 +53,9 @@ Three consequences worth the trouble:
   detail that separates a morph that looks alive from one that looks like a tween.
 
 Forms are generated from a seeded PRNG, so they are art-directed rather than incidental: the same
-structure appears on every load. Each form also carries its own offset and opacity, interpolated
-with the same morph value, so the field steps aside for the type in the hero and drops right back in
-the reading-heavy sections.
+structure appears on every load. Each one also carries its own offset, opacity and pointer strength,
+interpolated on the same morph value, so the field steps aside for the type in the hero, drops right
+back in the reading-heavy sections, and opens around the cursor where there is room for it.
 
 ## The forms are the content
 
@@ -79,7 +79,7 @@ when the content changes rather than needing to be retuned by hand.
 | 3D | react-three-fiber, three, custom GLSL, selective bloom |
 | Motion | GSAP with ScrollTrigger and SplitText, Lenis |
 | Styling | Tailwind v4 |
-| Type | Instrument Serif, Geist, Geist Mono, self-hosted |
+| Type | Anton, Geist, Geist Mono, self-hosted |
 
 ## Running it
 
@@ -99,10 +99,12 @@ npm run typecheck
 src/
   content.ts              all copy and CV data in one place
   scroll.ts               the only scroll listener in the app
+  pointer.ts              the only pointer listener in the app
   Scene.tsx               canvas, camera drift, bloom
   particles/
     layouts.ts            the six forms
     shaders.ts            the morph
+    rng.ts                seeded generator, so the field is reproducible
     ParticleField.tsx     packs layouts into the texture, drives the uniform
   sections/               one component per section
 ```

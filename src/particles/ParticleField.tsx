@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react'
-import { useFrame } from '@react-three/fiber'
+import { useFrame, useThree } from '@react-three/fiber'
 import {
   AdditiveBlending,
   BufferAttribute,
@@ -10,9 +10,12 @@ import {
   NearestFilter,
   RGBAFormat,
   ShaderMaterial,
+  Vector3,
   type Points as PointsObject,
 } from 'three'
+import { pointer } from '../pointer'
 import { LAYOUTS, LAYOUT_STYLES } from './layouts'
+import { rng } from './rng'
 import { fragmentShader, vertexShader } from './shaders'
 import { prefersReducedMotion, scroll } from '../scroll'
 
@@ -27,9 +30,11 @@ const TEX_W = 256
 const TILE_H = Math.ceil(COUNT / TEX_W)
 
 export function ParticleField() {
+  const camera = useThree((state) => state.camera)
   const points = useRef<PointsObject>(null)
   const material = useRef<ShaderMaterial>(null)
   const morph = useRef(0)
+  const cursor = useMemo(() => new Vector3(), [])
 
   const { geometry, layoutTexture } = useMemo(() => {
     const rows = LAYOUTS.length
@@ -58,9 +63,10 @@ export function ParticleField() {
     const seeds = new Float32Array(COUNT)
     // positions are decided entirely in the shader, but three still needs one to build the draw
     const placeholder = new Float32Array(COUNT * 3)
+    const random = rng(0x5eed)
     for (let i = 0; i < COUNT; i++) {
       indices[i] = i
-      seeds[i] = Math.random()
+      seeds[i] = random()
     }
 
     const geo = new BufferGeometry()
@@ -82,6 +88,8 @@ export function ParticleField() {
       uSize: { value: 3.2 },
       uTurbulence: { value: prefersReducedMotion ? 0 : 0.9 },
       uOpacity: { value: LAYOUT_STYLES[0].opacity },
+      uPointer: { value: new Vector3(999, 999, 0) },
+      uPointerStrength: { value: 0 },
       uColorA: { value: new Color('#67e8f9') },
       uColorB: { value: new Color('#a78bfa') },
     }),
@@ -114,11 +122,30 @@ export function ParticleField() {
     const to = LAYOUT_STYLES[i1]
 
     material.current.uniforms.uOpacity.value = from.opacity + (to.opacity - from.opacity) * t
+    const offsetX = from.offsetX + (to.offsetX - from.offsetX) * t
+    const offsetY = from.offsetY + (to.offsetY - from.offsetY) * t
 
     if (points.current) {
-      points.current.position.x = from.offsetX + (to.offsetX - from.offsetX) * t
+      points.current.position.x = offsetX
+      points.current.position.y = offsetY
       points.current.rotation.y += delta * 0.02
     }
+
+    if (prefersReducedMotion) return
+
+    /*
+     * where the cursor crosses the z=0 plane, in the field's own space. the field is
+     * translated by offsetX, so that has to come back off before the shader sees it.
+     */
+    cursor.set(pointer.x, -pointer.y, 0.5).unproject(camera).sub(camera.position).normalize()
+    const travel = -camera.position.z / cursor.z
+    cursor.multiplyScalar(travel).add(camera.position)
+    cursor.x -= offsetX
+    cursor.y -= offsetY
+
+    material.current.uniforms.uPointer.value.copy(cursor)
+    material.current.uniforms.uPointerStrength.value =
+      from.pointer + (to.pointer - from.pointer) * t
   })
 
   return (

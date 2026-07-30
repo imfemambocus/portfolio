@@ -1,4 +1,5 @@
 import { PROJECTS, ROLES, SKILL_CLUSTERS } from '../content'
+import { rng } from './rng'
 
 /*
  * each layout is one form the particle field takes. scroll interpolates between
@@ -8,16 +9,6 @@ import { PROJECTS, ROLES, SKILL_CLUSTERS } from '../content'
  */
 
 export type Layout = (count: number) => Float32Array
-
-function rng(seed: number) {
-  let s = seed >>> 0
-  return () => {
-    s = (s + 0x6d2b79f5) >>> 0
-    let t = Math.imul(s ^ (s >>> 15), 1 | s)
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
-  }
-}
 
 function onSphere(random: () => number) {
   const theta = random() * Math.PI * 2
@@ -193,13 +184,18 @@ export const LAYOUTS: readonly Layout[] = [
  * the content-heavy sections dim the field right down: at full strength it reads as
  * fog over the copy rather than atmosphere behind it.
  */
-export type LayoutStyle = { readonly offsetX: number; readonly opacity: number }
+export type LayoutStyle = {
+  readonly offsetX: number
+  readonly offsetY: number
+  readonly opacity: number
+  readonly pointer: number
+}
 
 export const LAYOUT_STYLES: readonly LayoutStyle[] = [
-  { offsetX: 3.1, opacity: 1 },
-  { offsetX: 1.8, opacity: 0.6 },
-  { offsetX: 0.4, opacity: 0.32 },
-  { offsetX: 0, opacity: 0.42 },
-  { offsetX: 0, opacity: 0.4 },
-  { offsetX: 2.6, opacity: 0.9 },
+  { offsetX: 1.6, offsetY: -1.9, opacity: 1, pointer: 0.9 },
+  { offsetX: 1.8, offsetY: 0, opacity: 0.6, pointer: 0.5 },
+  { offsetX: 0.4, offsetY: 0, opacity: 0.32, pointer: 0.15 },
+  { offsetX: 0, offsetY: 0, opacity: 0.42, pointer: 0.2 },
+  { offsetX: 0, offsetY: 0, opacity: 0.4, pointer: 0.2 },
+  { offsetX: 2.6, offsetY: -0.5, opacity: 0.9, pointer: 0.8 },
 ]
