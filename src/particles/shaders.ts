@@ -96,7 +96,8 @@ void main() {
   // toward white would make the particles dissolve into the page instead of flaring
   color = mix(color, mix(vec3(1.0), vec3(0.0), uLightMode), vGlow * 0.4);
 
-  // light needs more alpha than dark: normal blending accumulates far more gently than additive
-  gl_FragColor = vec4(color, alpha * mix(0.55, 0.85, uLightMode) * uOpacity);
+  // light needs the full alpha: normal blending accumulates far more gently than additive,
+  // and there is no bloom on light to carry the faint points the way dark gets for free
+  gl_FragColor = vec4(color, alpha * mix(0.55, 1.0, uLightMode) * uOpacity);
 }
 `

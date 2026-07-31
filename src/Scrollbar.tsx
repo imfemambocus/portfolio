@@ -95,8 +95,8 @@ export function Scrollbar() {
       onPointerDown={startDrag}
       style={{ top: INSET }}
       className={`group fixed right-0 z-50 flex w-4 touch-none justify-center select-none ${
-        scrollable ? '' : 'pointer-events-none opacity-0'
-      }`}
+        dragging ? 'cursor-grabbing' : 'cursor-grab'
+      } ${scrollable ? '' : 'pointer-events-none opacity-0'}`}
     >
       <span
         className={`block h-full w-1 rounded-full bg-ink transition-opacity duration-200 group-hover:opacity-70 ${

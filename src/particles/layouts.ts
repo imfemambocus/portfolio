@@ -17,64 +17,80 @@ function onSphere(random: () => number) {
   return [s * Math.cos(theta), s * Math.sin(theta), Math.cos(phi)] as const
 }
 
-const NODE_COUNT = 96
-const STRUCTURE_RADIUS = 3.4
+const TRUNK_HALF = 3.8
+const TRUNK_COMMITS = 11
+const EDGE_JITTER = 0.05
 
 /*
- * a bonded chain grown as a random walk, pulled back toward the origin whenever it
- * strays, so it reads as one compact structure rather than a wandering thread.
+ * the branches are hand-placed rather than generated. a random walk gave a blob; the
+ * point of this form is that it reads as a commit graph at a glance, and that needs
+ * branches that visibly leave the trunk, run alongside it and come back.
  */
-function buildStructure(random: () => number) {
-  const nodes: number[][] = [[0, 0, 0]]
-  let x = 0
-  let y = 0
-  let z = 0
+const BRANCHES = [
+  { from: 1, to: 5, lane: 1.45, depth: 0.8 },
+  { from: 3, to: 8, lane: -1.5, depth: -0.7 },
+  { from: 6, to: 10, lane: 2.25, depth: 0.35 },
+  { from: 2, to: 9, lane: -2.3, depth: 1.1 },
+] as const
 
-  for (let i = 1; i < NODE_COUNT; i++) {
-    const [dx, dy, dz] = onSphere(random)
-    const step = 0.55 + random() * 0.25
-    x += dx * step
-    y += dy * step
-    z += dz * step
+function smoothstep(edge0: number, edge1: number, x: number) {
+  const t = Math.min(Math.max((x - edge0) / (edge1 - edge0), 0), 1)
+  return t * t * (3 - 2 * t)
+}
 
-    const dist = Math.hypot(x, y, z) || 1
-    if (dist > STRUCTURE_RADIUS) {
-      const pull = STRUCTURE_RADIUS / dist
-      x *= pull
-      y *= pull
-      z *= pull
+const commitX = (i: number) => -TRUNK_HALF + (i / (TRUNK_COMMITS - 1)) * TRUNK_HALF * 2
+
+// across its span a branch arcs away from the trunk, runs level, then arcs back in
+const branchY = (lane: number, u: number) =>
+  lane * smoothstep(0, 0.22, u) * (1 - smoothstep(0.78, 1, u))
+const branchZ = (depth: number, u: number) => depth * Math.sin(u * Math.PI)
+
+function commitNodes() {
+  const nodes: number[][] = []
+  for (let i = 0; i < TRUNK_COMMITS; i++) nodes.push([commitX(i), 0, 0])
+
+  BRANCHES.forEach(({ from, to, lane, depth }) => {
+    for (let i = from + 1; i < to; i++) {
+      const u = (i - from) / (to - from)
+      nodes.push([commitX(i), branchY(lane, u), branchZ(depth, u)])
     }
-    nodes.push([x, y, z])
-  }
+  })
 
   return nodes
 }
 
-const molecule: Layout = (count) => {
-  const random = rng(1337)
-  const nodes = buildStructure(random)
+/*
+ * a commit graph. it replaced a bonded molecular chain, which said biology rather than
+ * developer and was the least art-directed of the six forms.
+ */
+const commitGraph: Layout = (count) => {
+  const random = rng(4242)
+  const nodes = commitNodes()
   const out = new Float32Array(count * 3)
 
   for (let i = 0; i < count; i++) {
     const o = i * 3
-    const n = Math.floor(random() * (nodes.length - 1))
-    const a = nodes[n]
-    const b = nodes[n + 1]
 
-    if (random() < 0.45) {
-      const t = random()
-      const jitter = 0.035
-      out[o] = a[0] + (b[0] - a[0]) * t + (random() - 0.5) * jitter
-      out[o + 1] = a[1] + (b[1] - a[1]) * t + (random() - 0.5) * jitter
-      out[o + 2] = a[2] + (b[2] - a[2]) * t + (random() - 0.5) * jitter
+    // most of the field draws the lines, the rest thickens the commits into nodes
+    if (random() < 0.62) {
+      const onTrunk = random() < 0.38
+      const branch = BRANCHES[Math.floor(random() * BRANCHES.length)]
+      const u = random()
+
+      out[o] = onTrunk
+        ? -TRUNK_HALF + u * TRUNK_HALF * 2
+        : commitX(branch.from) + (commitX(branch.to) - commitX(branch.from)) * u
+      out[o + 1] = (onTrunk ? 0 : branchY(branch.lane, u)) + (random() - 0.5) * EDGE_JITTER
+      out[o + 2] = (onTrunk ? 0 : branchZ(branch.depth, u)) + (random() - 0.5) * EDGE_JITTER
       continue
     }
 
+    const n = nodes[Math.floor(random() * nodes.length)]
     const [dx, dy, dz] = onSphere(random)
-    const r = 0.12 + Math.cbrt(random()) * 0.14
-    out[o] = a[0] + dx * r
-    out[o + 1] = a[1] + dy * r
-    out[o + 2] = a[2] + dz * r
+    const r = 0.1 + Math.cbrt(random()) * 0.16
+    out[o] = n[0] + dx * r
+    out[o + 1] = n[1] + dy * r
+    out[o + 2] = n[2] + dz * r
   }
 
   return out
@@ -170,12 +186,12 @@ const clumps: Layout = (count) => {
 }
 
 export const LAYOUTS: readonly Layout[] = [
-  molecule,
+  commitGraph,
   cloud,
   strata,
   constellation,
   clumps,
-  molecule,
+  commitGraph,
 ]
 
 /*
@@ -189,14 +205,22 @@ export type LayoutStyle = {
   readonly offsetY: number
   readonly scale: number
   readonly opacity: number
+  readonly opacityLight: number
   readonly pointer: number
 }
 
+/*
+ * light needs its own opacity per form, not a single global gain. on dark the field is
+ * additive and bloomed, so overlapping points compound and a low number still reads; on
+ * light it is normal-blended with no bloom, which accumulates linearly, and the dim
+ * mid-page forms sit under the most opaque part of the mask as well. the two effects
+ * multiply, so the forms that are dimmest on dark are the ones that vanish on light.
+ */
 export const LAYOUT_STYLES: readonly LayoutStyle[] = [
-  { offsetX: 4.3, offsetY: -1.7, scale: 1.35, opacity: 1, pointer: 0.2 },
-  { offsetX: 1.8, offsetY: 0, scale: 1, opacity: 0.68, pointer: 0.12 },
-  { offsetX: 0.4, offsetY: 0, scale: 1, opacity: 0.44, pointer: 0.05 },
-  { offsetX: 0, offsetY: 0, scale: 1, opacity: 0.52, pointer: 0.06 },
-  { offsetX: 0, offsetY: 0, scale: 1, opacity: 0.5, pointer: 0.06 },
-  { offsetX: 2.6, offsetY: -0.5, scale: 1.1, opacity: 0.9, pointer: 0.18 },
+  { offsetX: 4.3, offsetY: -0.85, scale: 0.8, opacity: 1, opacityLight: 1, pointer: 0.2 },
+  { offsetX: 1.8, offsetY: 0, scale: 1, opacity: 0.68, opacityLight: 0.95, pointer: 0.12 },
+  { offsetX: 0.4, offsetY: 0, scale: 1, opacity: 0.44, opacityLight: 0.9, pointer: 0.05 },
+  { offsetX: 0, offsetY: 0, scale: 1, opacity: 0.52, opacityLight: 0.92, pointer: 0.06 },
+  { offsetX: 0, offsetY: 0, scale: 1, opacity: 0.5, opacityLight: 0.9, pointer: 0.06 },
+  { offsetX: 2.6, offsetY: -0.5, scale: 1.1, opacity: 0.9, opacityLight: 1, pointer: 0.18 },
 ]

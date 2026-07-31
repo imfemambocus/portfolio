@@ -64,7 +64,7 @@ when the content changes rather than needing to be retuned by hand.
 
 | Section | Form | Driven by |
 | --- | --- | --- |
-| Hero | Bonded molecular structure | Procedural random walk |
+| Hero | Commit graph: a trunk with branches that diverge and merge back | Hand-placed branches |
 | Profile | Wide cloud with depth | Procedural |
 | Experience | Horizontal strata, one band per role, newer roles higher and wider | `ROLES` |
 | Toolkit | Clusters with a halo of strays | `SKILL_CLUSTERS` |
@@ -149,13 +149,20 @@ rather than by the hardware, so there are no hard edges for it to smooth.
 ## Light and dark
 
 The site opens dark and remembers what you pick from the toggle in the hero. Both themes are
-off-white and off-black rather than pure, and the particle field takes the same neutral as the body
-text in each: dark on light, off-white on dark.
+off-white and off-black rather than pure: dark particles on light, light particles on dark.
 
-It is not a palette swap. The field is drawn with additive blending, which only ever brightens, so
-on a light page it would be invisible. Light mode switches the material to normal blending, turns
-bloom off, lifts the alpha to compensate, and flips the mid-transition flare to deepen rather than
-glow. The two themes are the same field rendered two different ways.
+On dark, the field's two greys are exactly neutral, and that is deliberate rather than lazy.
+Additive blending clips dense areas to white while the sparse fringe keeps the colour of the
+individual points, so whichever channel leads by even a few values becomes a coloured glow around
+every cluster. The field tracked the page's slightly warm text colour at one point and wore a
+visible yellow cast for it. The page surface is a true neutral for the same reason: a few extra
+values of blue in an off-black is invisible on an LCD and reads as a tint on an OLED, where black
+is genuinely black.
+
+Beyond colour, it is not a palette swap either. The field is drawn with additive blending, which
+only ever brightens, so on a light page it would be invisible. Light mode switches the material to
+normal blending, turns bloom off, lifts the alpha to compensate, and flips the mid-transition flare
+to deepen rather than glow. The two themes are the same field rendered two different ways.
 
 Switching between them crossfades rather than snaps. The page colours interpolate, gradients
 included, and the field dips briefly and comes back, which is what covers the blending change

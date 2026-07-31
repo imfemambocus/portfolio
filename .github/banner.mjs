@@ -104,10 +104,10 @@ const page = `<!doctype html>
   }
 
   .dark {
-    --paper: #07070a;
+    --paper: #070707;
     --ink: #f6f6f3;
     --mist: #8a8a85;
-    --haze: #26262a;
+    --haze: #262626;
     --accent: #23a8cc;
   }
 

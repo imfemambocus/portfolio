@@ -13,7 +13,7 @@ const KEY = 'theme'
 export const THEME_FADE_MS = 220
 
 const SURFACE: Record<Theme, string> = {
-  dark: '#07070a',
+  dark: '#070707',
   light: '#f6f6f3',
 }
 
