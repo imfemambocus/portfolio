@@ -42,9 +42,15 @@ const TILE_H = Math.ceil(COUNT / TEX_W)
  * light mode is not just a palette swap. additive blending only ever brightens, so on
  * an off-white page it does nothing at all: dark particles need normal blending, and
  * bloom is switched off in Scene for the same reason.
+ *
+ * on dark both tones are pure greys, b being a at 80% brightness. the field is the one
+ * place a tint cannot hide: additive blending clips dense cores to white while the
+ * sparse fringe keeps the point colour, so any channel that leads becomes a coloured
+ * glow around every cluster. it read blue at #bfcbd2 and yellow while it tracked the
+ * warm `ink` token. depth here comes from brightness, never from hue.
  */
 const PALETTE: Record<Theme, { a: string; b: string; blending: Blending }> = {
-  dark: { a: '#f6f6f3', b: '#bfcbd2', blending: AdditiveBlending },
+  dark: { a: '#f6f6f6', b: '#c5c5c5', blending: AdditiveBlending },
   light: { a: '#17171c', b: '#2f3a40', blending: NormalBlending },
 }
 
@@ -191,8 +197,13 @@ export function ParticleField() {
     const from = LAYOUT_STYLES[i0]
     const to = LAYOUT_STYLES[i1]
 
+    // renderTheme, not theme: the swap has to land inside the dip like the palette does
+    const light = renderTheme.current === 'light'
+    const fromOpacity = light ? from.opacityLight : from.opacity
+    const toOpacity = light ? to.opacityLight : to.opacity
+
     material.current.uniforms.uOpacity.value =
-      (from.opacity + (to.opacity - from.opacity) * t) * themeDip(dipStart)
+      (fromOpacity + (toOpacity - fromOpacity) * t) * themeDip(dipStart)
     const offsetX = from.offsetX + (to.offsetX - from.offsetX) * t
     const offsetY = from.offsetY + (to.offsetY - from.offsetY) * t
     const scale = from.scale + (to.scale - from.scale) * t

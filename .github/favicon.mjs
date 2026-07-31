@@ -26,7 +26,7 @@ const RADIUS = 7
  * tile visibly framing the letters, which is what keeps them legible small.
  */
 const INK_HEIGHT = 23
-const OFF_BLACK = '#07070a'
+const OFF_BLACK = '#070707'
 const OFF_WHITE = '#f6f6f3'
 
 const font = opentype.parse(

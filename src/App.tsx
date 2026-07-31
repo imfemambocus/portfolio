@@ -31,12 +31,6 @@ export function App() {
         <Scene />
       </Suspense>
 
-      {/* guarantees contrast for the copy no matter what the field is doing behind it */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none fixed inset-0 z-5 bg-linear-to-r from-paper from-10% via-paper/85 via-45% to-transparent"
-      />
-
       <main className="relative z-10">
         <Hero />
         <Profile />

@@ -23,7 +23,7 @@ export function Scene() {
 
   return (
     <Canvas
-      className="fixed! inset-0"
+      className="field-mask fixed! inset-0"
       camera={{ position: [0, 0, 9], fov: 52 }}
       dpr={[1, 1.75]}
       gl={{ antialias: false, powerPreference: 'high-performance' }}
@@ -34,7 +34,16 @@ export function Scene() {
       {/* bloom only brightens, so on an off-white page it washes the field out instead of glowing */}
       {current === 'dark' && (
         <EffectComposer>
-          <Bloom intensity={0.85} luminanceThreshold={0.25} luminanceSmoothing={0.4} mipmapBlur />
+          {/* levels caps how far the mip chain spreads the glow. the default reaches most of
+              the viewport, which lifts the background into a broad bright band instead of a
+              halo, and on an OLED that reads as the page being unevenly lit */}
+          <Bloom
+            intensity={0.85}
+            luminanceThreshold={0.45}
+            luminanceSmoothing={0.4}
+            levels={4}
+            mipmapBlur
+          />
         </EffectComposer>
       )}
     </Canvas>

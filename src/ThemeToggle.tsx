@@ -36,7 +36,7 @@ export function ThemeToggle() {
       type="button"
       onClick={toggleTheme}
       aria-label={`Switch to ${next} mode`}
-      className="grid size-9 place-items-center rounded-full border border-haze text-mist transition-colors hover:border-mist hover:text-ink"
+      className="grid size-9 cursor-pointer place-items-center rounded-full border border-haze text-mist transition-colors hover:border-mist hover:text-ink"
     >
       <span className="size-4">{current === 'dark' ? <Sun /> : <Moon />}</span>
     </button>

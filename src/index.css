@@ -9,10 +9,15 @@
  * is no `dark:` variant anywhere in the app.
  */
 @theme {
-  --color-paper: #07070a;
+  /*
+   * the dark neutrals are true neutrals: equal channels, no cool cast. paper was #07070a
+   * and haze #26262a, both carrying a few points of extra blue, which is invisible on an
+   * LCD and reads as a blue tint on an OLED, where black is genuinely black.
+   */
+  --color-paper: #070707;
   --color-ink: #f6f6f3;
   --color-mist: #8a8a85;
-  --color-haze: #26262a;
+  --color-haze: #262626;
 
   /*
    * the signature blue. the two hexes share hue and saturation and differ only in
@@ -37,7 +42,7 @@
 @property --color-paper {
   syntax: '<color>';
   inherits: true;
-  initial-value: #07070a;
+  initial-value: #070707;
 }
 @property --color-ink {
   syntax: '<color>';
@@ -52,7 +57,7 @@
 @property --color-haze {
   syntax: '<color>';
   inherits: true;
-  initial-value: #26262a;
+  initial-value: #262626;
 }
 @property --color-accent {
   syntax: '<color>';
@@ -121,6 +126,26 @@ body {
 :focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 3px;
+}
+
+/*
+ * the field fades out to the left with a mask on the canvas, not with a paper gradient
+ * painted over it. compositing paper over paper is what produced the vertical banding:
+ * partial alpha floors a level, so the covered region rendered 6 against the page's 7,
+ * which is invisible on an lcd and a seam on an oled. a mask only scales the canvas
+ * alpha, so wherever the field is not drawing the page is exactly --color-paper.
+ *
+ * the stops are the old scrim's inverted: it was opaque paper to 10% and 85% at 45%,
+ * so the field is hidden to 10% and 15% visible at 45%.
+ */
+@utility field-mask {
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    transparent 10%,
+    rgb(0 0 0 / 0.15) 45%,
+    rgb(0 0 0 / 1) 100%
+  );
 }
 
 @utility label {
