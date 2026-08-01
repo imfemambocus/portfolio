@@ -4,7 +4,7 @@
 
 # Portfolio
 
-A single-page, scroll-driven portfolio. One particle field of 80,000 points takes a different form
+A single-page, scroll-driven portfolio. One particle field of 160,000 points takes a different form
 for each section of the page, so a single element appears to evolve the whole way down rather than
 each section animating on its own.
 
@@ -27,7 +27,7 @@ vec3 p = mix(sampleLayout(i0), sampleLayout(i1), t);
 ```
 
 The tiling matters more than it looks. The obvious packing is one row per form, but that makes the
-texture `COUNT` texels wide, and 80,000 is well past the 16,384 `MAX_TEXTURE_SIZE` most GPUs report.
+texture `COUNT` texels wide, and 160,000 is well past the 16,384 `MAX_TEXTURE_SIZE` most GPUs report.
 The upload fails silently, every fetch returns zero, and the entire field collapses onto the origin.
 So forms are tiled 256 texels wide and stacked instead, and the shader reconstructs the coordinate:
 
@@ -44,7 +44,7 @@ vec3 sampleLayout(float layer) {
 
 Three consequences worth the trouble:
 
-- **Scrolling costs no per-frame CPU work.** No loop over 80,000 positions, no buffer re-upload.
+- **Scrolling costs no per-frame CPU work.** No loop over 160,000 positions, no buffer re-upload.
   The only thing that changes between frames is one float uniform.
 - **Adding a section costs one tile.** Layouts are plain functions returning a `Float32Array`, so a
   new form is a new function in a list.
@@ -54,8 +54,13 @@ Three consequences worth the trouble:
 
 Forms are generated from a seeded PRNG, so they are art-directed rather than incidental: the same
 structure appears on every load. Each one also carries its own offset, opacity and pointer strength,
-interpolated on the same morph value, so the field steps aside for the type in the hero, drops right
-back in the reading-heavy sections, and opens around the cursor where there is room for it.
+interpolated on the same morph value, so the field drops right back in the reading-heavy sections,
+runs full-bleed at the two ends of the page, and opens around the cursor where there is room for it.
+
+The field is sized against the viewport rather than in fixed world units, and the points are sized
+against the drawing buffer rather than in device pixels. Both matter more than they sound: with
+either one fixed, the field quietly shrinks and thins out as the screen gets bigger, so a 4K display
+gets a sparser, smaller version of the same scene instead of the same one larger.
 
 ## The forms are the content
 
@@ -64,12 +69,12 @@ when the content changes rather than needing to be retuned by hand.
 
 | Section | Form | Driven by |
 | --- | --- | --- |
-| Hero | Commit graph: a trunk with branches that diverge and merge back | Hand-placed branches |
+| Hero | Diagonal waves sweeping from the lower left, bleeding off every edge | Procedural |
 | Profile | Wide cloud with depth | Procedural |
 | Experience | Horizontal strata, one band per role, newer roles higher and wider | `ROLES` |
 | Toolkit | Clusters with a halo of strays | `SKILL_CLUSTERS` |
 | Work | Discrete clumps behind the cards | `PROJECTS` |
-| Contact | Collapses back to the hero structure | Reuses the hero generator |
+| Contact | Returns to the waves | Reuses the hero generator |
 
 ## Stack
 
@@ -146,6 +151,10 @@ the text never waits on it.
 `dpr` is capped at 1.75 and antialiasing is off. The particles are soft-edged in the fragment shader
 rather than by the hardware, so there are no hard edges for it to smooth.
 
+Generating the six forms and packing them into the texture is a single task of roughly 200ms at
+startup. It runs after first paint, because the scene is lazy-loaded, so the text is already on
+screen and readable while it happens.
+
 ## Light and dark
 
 The site opens dark and remembers what you pick from the toggle in the hero. Both themes are
@@ -176,7 +185,7 @@ motion switched off, which tends to leave content stranded at `opacity: 0`:
 - Lenis is skipped for native scroll, and the morph snaps instead of easing
 - Turbulence goes to zero and the particle count drops to 22,000
 - The Experience section renders as a plain stacked list instead of a sticky stepper
-- The cursor no longer perturbs the field, and the camera stops drifting
+- The cursor no longer perturbs the field, the camera stops drifting, and the field stops swaying
 
 All content lives in the DOM in reading order regardless of scroll state, there is a skip link, and
 the focus ring is visible.

@@ -17,80 +17,85 @@ function onSphere(random: () => number) {
   return [s * Math.cos(theta), s * Math.sin(theta), Math.cos(phi)] as const
 }
 
-const TRUNK_HALF = 3.8
-const TRUNK_COMMITS = 11
-const EDGE_JITTER = 0.05
+/*
+ * parallel wave lines running on a diagonal, low and calm at the bottom left and building
+ * as they sweep to the top right.
+ *
+ * this form is deliberately much wider and taller than the viewport, and that is the whole
+ * point of it. every earlier hero form was a compact object sitting to the right of the
+ * copy, which read as a two-column layout; a form that bleeds off all four edges has no
+ * silhouette to read as a column at all. the field mask fades the canvas out towards the
+ * left, so the same gradient that protects the copy also does the work of making the waves
+ * emerge from the lower left rather than starting abruptly.
+ */
+const WAVE_LINES = 6
+const WAVE_ANGLE = 0.5
+const WAVE_SPAN = 20
+const WAVE_SPREAD = 12
+const WAVE_FREQ = 0.62
+const WAVE_AMP = 0.6
+const WAVE_THICKNESS = 0.8
 
 /*
- * the branches are hand-placed rather than generated. a random walk gave a blob; the
- * point of this form is that it reads as a commit graph at a glance, and that needs
- * branches that visibly leave the trunk, run alongside it and come back.
+ * neighbouring lines are shifted by a small, constant amount rather than given random
+ * phases. random phases made every line independent, so the form read as a tangle of
+ * separate strands; stepping the phase makes the crests line up into wavefronts that
+ * travel across the field, which is what actually reads as waves.
  */
-const BRANCHES = [
-  { from: 1, to: 5, lane: 1.45, depth: 0.8 },
-  { from: 3, to: 8, lane: -1.5, depth: -0.7 },
-  { from: 6, to: 10, lane: 2.25, depth: 0.35 },
-  { from: 2, to: 9, lane: -2.3, depth: 1.1 },
-] as const
+const WAVE_PHASE_STEP = 0.28
 
-function smoothstep(edge0: number, edge1: number, x: number) {
-  const t = Math.min(Math.max((x - edge0) / (edge1 - edge0), 0), 1)
-  return t * t * (3 - 2 * t)
-}
-
-const commitX = (i: number) => -TRUNK_HALF + (i / (TRUNK_COMMITS - 1)) * TRUNK_HALF * 2
-
-// across its span a branch arcs away from the trunk, runs level, then arcs back in
-const branchY = (lane: number, u: number) =>
-  lane * smoothstep(0, 0.22, u) * (1 - smoothstep(0.78, 1, u))
-const branchZ = (depth: number, u: number) => depth * Math.sin(u * Math.PI)
-
-function commitNodes() {
-  const nodes: number[][] = []
-  for (let i = 0; i < TRUNK_COMMITS; i++) nodes.push([commitX(i), 0, 0])
-
-  BRANCHES.forEach(({ from, to, lane, depth }) => {
-    for (let i = from + 1; i < to; i++) {
-      const u = (i - from) / (to - from)
-      nodes.push([commitX(i), branchY(lane, u), branchZ(depth, u)])
-    }
-  })
-
-  return nodes
-}
+// crests deepen along the sweep, so the calm end is genuinely calm rather than just dimmer
+const WAVE_BUILD = 1.7
+const WAVE_DEPTH = 0.5
 
 /*
- * a commit graph. it replaced a bonded molecular chain, which said biology rather than
- * developer and was the least art-directed of the six forms.
+ * particles are biased along the sweep rather than spread evenly, so the top right carries
+ * more of them. an even spread made the build in amplitude read as the waves merely getting
+ * taller, not as the field gathering.
  */
-const commitGraph: Layout = (count) => {
-  const random = rng(4242)
-  const nodes = commitNodes()
+const WAVE_BIAS = 0.68
+
+const waves: Layout = (count) => {
+  const random = rng(6204)
   const out = new Float32Array(count * 3)
+
+  const dx = Math.cos(WAVE_ANGLE)
+  const dy = Math.sin(WAVE_ANGLE)
+
+  const phases = new Float32Array(WAVE_LINES)
+  const wobble = new Float32Array(WAVE_LINES)
+  for (let i = 0; i < WAVE_LINES; i++) {
+    // a touch of jitter on top of the step, so the wavefronts are not mechanically straight
+    phases[i] = i * WAVE_PHASE_STEP + (random() - 0.5) * 0.12
+    wobble[i] = 0.96 + random() * 0.08
+  }
 
   for (let i = 0; i < count; i++) {
     const o = i * 3
+    const line = Math.floor(random() * WAVE_LINES)
+    const t = Math.pow(random(), WAVE_BIAS)
 
-    // most of the field draws the lines, the rest thickens the commits into nodes
-    if (random() < 0.62) {
-      const onTrunk = random() < 0.38
-      const branch = BRANCHES[Math.floor(random() * BRANCHES.length)]
-      const u = random()
+    const along = (t - 0.5) * WAVE_SPAN
+    const across = (line / (WAVE_LINES - 1) - 0.5) * WAVE_SPREAD
 
-      out[o] = onTrunk
-        ? -TRUNK_HALF + u * TRUNK_HALF * 2
-        : commitX(branch.from) + (commitX(branch.to) - commitX(branch.from)) * u
-      out[o + 1] = (onTrunk ? 0 : branchY(branch.lane, u)) + (random() - 0.5) * EDGE_JITTER
-      out[o + 2] = (onTrunk ? 0 : branchZ(branch.depth, u)) + (random() - 0.5) * EDGE_JITTER
-      continue
-    }
+    const freq = WAVE_FREQ * wobble[line]
+    const amp = WAVE_AMP * (0.12 + t * t * WAVE_BUILD)
+    const crest =
+      Math.sin(along * freq + phases[line]) * amp +
+      Math.sin(along * freq * 2.3 + phases[line] * 1.7) * amp * 0.34
 
-    const n = nodes[Math.floor(random() * nodes.length)]
-    const [dx, dy, dz] = onSphere(random)
-    const r = 0.1 + Math.cbrt(random()) * 0.16
-    out[o] = n[0] + dx * r
-    out[o + 1] = n[1] + dy * r
-    out[o + 2] = n[2] + dz * r
+    /*
+     * squaring the triangular spread while keeping its sign gives the band a dense core
+     * that feathers out, rather than a uniform grey slab. spread flat across a band this
+     * wide, the particle budget covered so much area that the waves lost their edges and
+     * merged into a single haze.
+     */
+    const spread = random() - random()
+    const offset = across + crest + spread * Math.abs(spread) * WAVE_THICKNESS
+
+    out[o] = dx * along - dy * offset
+    out[o + 1] = dy * along + dx * offset
+    out[o + 2] = Math.sin(along * 0.4 + phases[line]) * WAVE_DEPTH
   }
 
   return out
@@ -186,12 +191,12 @@ const clumps: Layout = (count) => {
 }
 
 export const LAYOUTS: readonly Layout[] = [
-  commitGraph,
+  waves,
   cloud,
   strata,
   constellation,
   clumps,
-  commitGraph,
+  waves,
 ]
 
 /*
@@ -217,10 +222,10 @@ export type LayoutStyle = {
  * multiply, so the forms that are dimmest on dark are the ones that vanish on light.
  */
 export const LAYOUT_STYLES: readonly LayoutStyle[] = [
-  { offsetX: 4.3, offsetY: -0.85, scale: 0.8, opacity: 1, opacityLight: 1, pointer: 0.2 },
+  { offsetX: 0, offsetY: 0, scale: 1, opacity: 1, opacityLight: 1, pointer: 0.2 },
   { offsetX: 1.8, offsetY: 0, scale: 1, opacity: 0.68, opacityLight: 0.95, pointer: 0.12 },
   { offsetX: 0.4, offsetY: 0, scale: 1, opacity: 0.44, opacityLight: 0.9, pointer: 0.05 },
   { offsetX: 0, offsetY: 0, scale: 1, opacity: 0.52, opacityLight: 0.92, pointer: 0.06 },
   { offsetX: 0, offsetY: 0, scale: 1, opacity: 0.5, opacityLight: 0.9, pointer: 0.06 },
-  { offsetX: 2.6, offsetY: -0.5, scale: 1.1, opacity: 0.9, opacityLight: 1, pointer: 0.18 },
+  { offsetX: 0, offsetY: 0, scale: 1, opacity: 0.9, opacityLight: 1, pointer: 0.18 },
 ]

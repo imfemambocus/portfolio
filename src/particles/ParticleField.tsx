@@ -28,11 +28,11 @@ import { rng } from './rng'
 import { fragmentShader, vertexShader } from './shaders'
 import { prefersReducedMotion, scroll } from '../scroll'
 
-const COUNT = prefersReducedMotion ? 22000 : 80000
+const COUNT = prefersReducedMotion ? 22000 : 160000
 
 /*
  * layouts are tiled into a narrow grid instead of one row each: a row-per-layout
- * texture would be COUNT texels wide, and 80000 exceeds the 16384 MAX_TEXTURE_SIZE
+ * texture would be COUNT texels wide, and 160000 exceeds the 16384 MAX_TEXTURE_SIZE
  * most GPUs report, so the upload fails and every particle collapses to the origin.
  */
 const TEX_W = 256
@@ -61,6 +61,40 @@ const PALETTE: Record<Theme, { a: string; b: string; blending: Blending }> = {
  */
 const THEME_DIP = 0.08
 
+/*
+ * gl_PointSize is in device pixels, so a fixed value makes the field thin out as the
+ * drawing buffer grows rather than holding its share of the screen: ink coverage over
+ * the hero region measured 27.9% on a 2520x1575 buffer against 6.3% on 5760x3240.
+ * sizing against that reference height keeps a point a constant fraction of the frame.
+ */
+const BASE_POINT_SIZE = 3.2
+const REFERENCE_BUFFER_H = 1575
+
+/*
+ * the world width the art direction was tuned against (1440x900 at fov 52, z 9). the fov
+ * is fixed, so a wider viewport simply shows more world and a form sized in world units
+ * shrinks as a fraction of the screen: the hero plume measured 50% of the width at that
+ * aspect against 45% at 16:9. scaling by the ratio holds its share instead.
+ *
+ * clamped so it only ever grows. below the reference the form is already wider than the
+ * viewport, and shrinking it there would turn a full-bleed background into a small motif
+ * floating in the middle of a phone screen.
+ */
+const REFERENCE_WORLD_WIDTH = 14.05
+const MAX_VIEWPORT_GAIN = 1.5
+
+/*
+ * the field sways rather than turning. this used to accumulate rotation.y forever, which
+ * is invisible on a blob but not on a form built to run off the edges: given long enough
+ * it turns far enough to swing the ends of the waves into frame, and no amount of extra
+ * size fixes that, since at a quarter turn the form is edge-on whatever its extent.
+ *
+ * amplitude times speed is roughly the old angular rate, so the motion reads the same at
+ * the crossing, it just never leaves this range.
+ */
+const SWAY_ANGLE = 0.1
+const SWAY_SPEED = 0.2
+
 /* 1 at rest, easing down to THEME_DIP at the crossover and back up again */
 function themeDip(start: { current: number }) {
   if (start.current < 0) return 1
@@ -78,9 +112,12 @@ function themeDip(start: { current: number }) {
 
 export function ParticleField() {
   const camera = useThree((state) => state.camera)
+  const size = useThree((state) => state.size)
+  const dpr = useThree((state) => state.viewport.dpr)
   const points = useRef<PointsObject>(null)
   const material = useRef<ShaderMaterial>(null)
   const morph = useRef(0)
+  const sway = useRef(0)
   const dipStart = useRef(-1)
   const cursor = useMemo(() => new Vector3(), [])
 
@@ -133,7 +170,7 @@ export function ParticleField() {
       uTileH: { value: TILE_H },
       uMorph: { value: 0 },
       uTime: { value: 0 },
-      uSize: { value: 3.2 },
+      uSize: { value: BASE_POINT_SIZE },
       uTurbulence: { value: prefersReducedMotion ? 0 : 0.9 },
       uOpacity: { value: LAYOUT_STYLES[0].opacity },
       uPointer: { value: new Vector3(999, 999, 0) },
@@ -172,6 +209,12 @@ export function ParticleField() {
     }
   }, [])
 
+  useEffect(() => {
+    if (!material.current) return
+    material.current.uniforms.uSize.value =
+      BASE_POINT_SIZE * ((size.height * dpr) / REFERENCE_BUFFER_H)
+  }, [size, dpr])
+
   useEffect(
     () => () => {
       geometry.dispose()
@@ -180,7 +223,7 @@ export function ParticleField() {
     [geometry, layoutTexture],
   )
 
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
     if (!material.current) return
 
     // lenis already smooths scroll; this only takes the edge off wheel-step jumps
@@ -204,15 +247,31 @@ export function ParticleField() {
 
     material.current.uniforms.uOpacity.value =
       (fromOpacity + (toOpacity - fromOpacity) * t) * themeDip(dipStart)
-    const offsetX = from.offsetX + (to.offsetX - from.offsetX) * t
+    /*
+     * offsetX rides the gain along with the scale: it is a world-unit displacement, so
+     * leaving it fixed while the form grows would slide the form left relative to the
+     * copy it is meant to sit beside. offsetY does not, since the visible world height
+     * does not change with aspect.
+     */
+    const gain = Math.min(
+      Math.max(state.viewport.width / REFERENCE_WORLD_WIDTH, 1),
+      MAX_VIEWPORT_GAIN,
+    )
+    const offsetX = (from.offsetX + (to.offsetX - from.offsetX) * t) * gain
     const offsetY = from.offsetY + (to.offsetY - from.offsetY) * t
-    const scale = from.scale + (to.scale - from.scale) * t
+    const scale = (from.scale + (to.scale - from.scale) * t) * gain
 
     if (points.current) {
       points.current.position.x = offsetX
       points.current.position.y = offsetY
       points.current.scale.setScalar(scale)
-      points.current.rotation.y += delta * 0.02
+
+      if (prefersReducedMotion) {
+        points.current.rotation.y = 0
+      } else {
+        sway.current += delta
+        points.current.rotation.y = Math.sin(sway.current * SWAY_SPEED) * SWAY_ANGLE
+      }
     }
 
     if (prefersReducedMotion) return
