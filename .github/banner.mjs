@@ -12,9 +12,9 @@ import { fileURLToPath } from 'node:url'
  * and lets the particles use real additive blending and a bloom pass.
  *
  * the banner is the same design rendered twice, light and dark, with the dark layer
- * clipped to a diagonal. diagonal rather than a vertical split on purpose: the wordmark
- * sits left and the field sits right, so a vertical cut would show each element in only
- * one theme. the diagonal crosses both, and the meta and stats rows as well.
+ * clipped to a diagonal. diagonal rather than a vertical split on purpose: it crosses the
+ * wordmark, the meta row and the stats row, so every element of the design is shown in
+ * both themes rather than each one belonging to a single half.
  *
  *   npm install --no-save puppeteer && node .github/banner.mjs
  */
@@ -34,15 +34,13 @@ const H = 460
 
 /*
  * the seam, top x and bottom x as percentages. leans left going down so it cuts through
- * the wordmark's last letters, which is the whole point: the split has to land on shared
- * content or it reads as two unrelated images.
+ * the wordmark, which is the whole point: the split has to land on shared content or it
+ * reads as two unrelated images.
  *
- * it cannot also cross the field. the wordmark ends at 54% of the width and the field
- * starts at 65%, so any straight cut that splits one leaves the other whole, and this
- * seam only just catches the wordmark as it is. moving it right to reach the field loses
- * the type split, which is the more legible signal at readme scale. so the field reads
- * dark-only by composition, not by accident. both layers still render a field: they are
- * structurally identical, and the light one becomes visible the moment the seam moves.
+ * this used to be a constraint to work around, because the wordmark and the field sat in
+ * separate columns and no straight cut could split both. the waves span the full width,
+ * so the seam now crosses the field wherever it is put and only the type has to be aimed
+ * at.
  */
 const SEAM_TOP = 57
 const SEAM_BOTTOM = 43
@@ -55,7 +53,7 @@ const layer = (theme) => `
       <div class="rule"></div>
       <div class="meta">
         <div class="stack">
-          <div class="mono bright">Emambocus</div>
+          <div class="mono bright">Isfaaq M. F. Emambocus</div>
           <div class="mono">R&amp;D Specialist, LCSB</div>
         </div>
         <div class="stack right">
@@ -64,13 +62,13 @@ const layer = (theme) => `
       </div>
     </header>
 
-    <div class="wordmark">Isfaaq</div>
+    <div class="wordmark">Portfolio</div>
 
     <footer>
       <div class="rule"></div>
       <div class="foot">
         <div class="mono">7+ years &middot; React, Vue, Laravel</div>
-        <div class="mono accent right">80,000 particles &middot; one vertex shader &middot; six forms</div>
+        <div class="mono accent right">160,000 particles &middot; one vertex shader &middot; six forms</div>
       </div>
     </footer>
   </div>
@@ -117,7 +115,18 @@ const page = `<!doctype html>
     background: var(--paper);
   }
 
-  canvas { position: absolute; inset: 0; }
+  /* the app's own field mask, so the waves clear the type here the way they do on the site */
+  canvas {
+    position: absolute;
+    inset: 0;
+    mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      transparent 10%,
+      rgb(0 0 0 / 0.15) 45%,
+      rgb(0 0 0 / 1) 100%
+    );
+  }
 
   .grid {
     position: absolute;
@@ -152,7 +161,7 @@ const page = `<!doctype html>
 
   .wordmark {
     font-family: 'Anton', sans-serif;
-    font-size: 290px;
+    font-size: 208px;
     line-height: 0.82;
     letter-spacing: -0.012em;
     text-transform: uppercase;
@@ -183,56 +192,45 @@ ${layer('dark')}
 
   var random = rng(1337);
 
-  function onSphere() {
-    var theta = random() * Math.PI * 2;
-    var phi = Math.acos(2 * random() - 1);
-    var s = Math.sin(phi);
-    return [s * Math.cos(theta), s * Math.sin(theta), Math.cos(phi)];
-  }
+  /*
+   * the site's own diagonal waves, kept in step with LAYOUTS[0] in src/particles/layouts.ts.
+   * this file cannot import from src, so the constants are duplicated: change them there and
+   * change them here, or the readme stops matching the site.
+   */
+  var WAVE_LINES = 6, WAVE_ANGLE = 0.5, WAVE_SPAN = 20, WAVE_SPREAD = 12;
+  var WAVE_FREQ = 0.62, WAVE_AMP = 0.6, WAVE_THICKNESS = 0.8;
+  var WAVE_PHASE_STEP = 0.28, WAVE_BUILD = 1.7, WAVE_DEPTH = 0.5, WAVE_BIAS = 0.68;
 
-  // the site's own bonded-chain walk, so the banner shows the hero's structure
-  var NODES = 92, LIMIT = 3.4, nodes = [[0, 0, 0]], x = 0, y = 0, z = 0, i, d;
-  for (i = 1; i < NODES; i++) {
-    var step = onSphere(), len = 0.55 + random() * 0.25;
-    x += step[0] * len; y += step[1] * len; z += step[2] * len;
-    d = Math.hypot(x, y, z) || 1;
-    if (d > LIMIT) { var pull = LIMIT / d; x *= pull; y *= pull; z *= pull; }
-    nodes.push([x, y, z]);
-  }
-
-  var cx = 0, cy = 0, cz = 0;
-  for (i = 0; i < nodes.length; i++) { cx += nodes[i][0]; cy += nodes[i][1]; cz += nodes[i][2]; }
-  cx /= nodes.length; cy /= nodes.length; cz /= nodes.length;
-  var extent = 0;
-  for (i = 0; i < nodes.length; i++) {
-    nodes[i][0] -= cx; nodes[i][1] -= cy; nodes[i][2] -= cz;
-    extent = Math.max(extent, Math.hypot(nodes[i][0], nodes[i][1], nodes[i][2]));
+  var i, dx = Math.cos(WAVE_ANGLE), dy = Math.sin(WAVE_ANGLE);
+  var phases = [], wobble = [];
+  for (i = 0; i < WAVE_LINES; i++) {
+    phases.push(i * WAVE_PHASE_STEP + (random() - 0.5) * 0.12);
+    wobble.push(0.96 + random() * 0.08);
   }
 
   var points = [];
-  for (i = 0; i < 26000; i++) {
-    var n = Math.floor(random() * (nodes.length - 1)), a = nodes[n], b = nodes[n + 1];
-    if (random() < 0.46) {
-      var t = random(), j = 0.03;
-      points.push([
-        a[0] + (b[0] - a[0]) * t + (random() - 0.5) * j,
-        a[1] + (b[1] - a[1]) * t + (random() - 0.5) * j,
-        a[2] + (b[2] - a[2]) * t + (random() - 0.5) * j
-      ]);
-    } else {
-      var o = onSphere(), r = 0.1 + Math.cbrt(random()) * 0.14;
-      points.push([a[0] + o[0] * r, a[1] + o[1] * r, a[2] + o[2] * r]);
-    }
-  }
-  // a thin halo, flagged so it is not styled by depth: strays sit past the extent, so
-  // depth clamps them to the brightest tier and they would read as a starfield
-  for (i = 0; i < 900; i++) {
-    var s2 = onSphere(), rr = 1.05 + random() * 0.85;
-    points.push([s2[0] * extent * rr, s2[1] * extent * rr * 0.72, s2[2] * extent * rr, 1]);
+  for (i = 0; i < 110000; i++) {
+    var line = Math.floor(random() * WAVE_LINES);
+    var t = Math.pow(random(), WAVE_BIAS);
+    var along = (t - 0.5) * WAVE_SPAN;
+    var across = (line / (WAVE_LINES - 1) - 0.5) * WAVE_SPREAD;
+    var freq = WAVE_FREQ * wobble[line];
+    var amp = WAVE_AMP * (0.12 + t * t * WAVE_BUILD);
+    var crest = Math.sin(along * freq + phases[line]) * amp +
+                Math.sin(along * freq * 2.3 + phases[line] * 1.7) * amp * 0.34;
+    var sp = random() - random();
+    var offset = across + crest + sp * Math.abs(sp) * WAVE_THICKNESS;
+    points.push([
+      dx * along - dy * offset,
+      dy * along + dx * offset,
+      Math.sin(along * 0.4 + phases[line]) * WAVE_DEPTH
+    ]);
   }
   points.sort(function (p, q) { return p[2] - q[2]; });
 
-  var CX = 1000, CY = 238, SCALE = 186 / extent;
+  // depth grading runs over the wave's own z range, which is far shallower than a blob's
+  var extent = WAVE_DEPTH;
+  var CX = 690, CY = 250, SCALE = 78;
 
   /*
    * one pre-rendered sprite per colour tier, stamped per particle. a createRadialGradient
@@ -258,10 +256,7 @@ ${layer('dark')}
     var ctx = canvas.getContext('2d');
     ctx.scale(2, 2);
 
-    var sprites = {
-      near: sprite(opts.near), mid: sprite(opts.mid),
-      far: sprite(opts.far), stray: sprite(opts.stray)
-    };
+    var sprites = { near: sprite(opts.near), mid: sprite(opts.mid), far: sprite(opts.far) };
 
     var buffer = document.createElement('canvas');
     buffer.width = ${W * 2}; buffer.height = ${H * 2};
@@ -278,11 +273,10 @@ ${layer('dark')}
       var py = CY + p[1] * SCALE * persp;
       if (px < -30 || px > ${W} + 30 || py < -30 || py > ${H} + 30) continue;
 
-      var stray = p[3];
       // small and tightly graded by depth: the size spread is what reads as particulate
-      var rad = stray ? 0.5 : 0.42 + depth * depth * 2.0;
-      var alpha = (stray ? 0.10 : 0.045 + depth * 0.16) * opts.gain;
-      var art = stray ? sprites.stray : depth > 0.66 ? sprites.near : depth > 0.34 ? sprites.mid : sprites.far;
+      var rad = 0.42 + depth * depth * 2.0;
+      var alpha = (0.045 + depth * 0.16) * opts.gain;
+      var art = depth > 0.66 ? sprites.near : depth > 0.34 ? sprites.mid : sprites.far;
 
       bc.globalAlpha = Math.min(alpha, 1);
       bc.drawImage(art, px - rad, py - rad, rad * 2, rad * 2);
@@ -311,14 +305,14 @@ ${layer('dark')}
   }
 
   render('field-dark', {
-    additive: true, gain: 1.35,
-    near: '246,246,243', mid: '214,222,228', far: '150,163,175', stray: '140,148,160',
+    additive: true, gain: 1.15,
+    near: '246,246,243', mid: '214,222,228', far: '150,163,175',
     wash: 'rgba(40,44,60,0.30)'
   });
 
   render('field-light', {
     additive: false, gain: 2.6,
-    near: '23,23,28', mid: '35,42,48', far: '60,68,76', stray: '90,96,104',
+    near: '23,23,28', mid: '35,42,48', far: '60,68,76',
     wash: null
   });
 

@@ -18,6 +18,7 @@ const CLOCK = new Intl.DateTimeFormat('en-GB', {
 
 const readClock = () => CLOCK.format(new Date())
 
+
 export function Hero() {
   const root = useRef<HTMLDivElement>(null)
   const [clock, setClock] = useState(readClock)
@@ -40,10 +41,10 @@ export function Hero() {
     let split: SplitText | undefined
 
     const ctx = gsap.context(() => {
-      const heading = el.querySelector('[data-name]')
-      if (!heading) return
+      const lines = el.querySelectorAll('[data-name]')
+      if (lines.length === 0) return
 
-      split = new SplitText(heading, { type: 'chars' })
+      split = new SplitText(lines, { type: 'chars' })
 
       gsap
         .timeline({ delay: 0.15 })
@@ -74,7 +75,7 @@ export function Hero() {
           <div className="flex items-start justify-between gap-6 pt-5">
             <div>
               <p data-fade className="label text-ink">
-                Emambocus
+                {IDENTITY.name}
               </p>
               <p data-fade className="label mt-1.5">
                 {IDENTITY.role}, LCSB
@@ -96,9 +97,14 @@ export function Hero() {
           </div>
         </header>
 
-        <h1 className="display my-8 text-[clamp(4rem,30vw,22rem)]">
-          <span className="sr-only">{IDENTITY.fullName}</span>
+        <h1 className="my-8">
+          <span className="sr-only">{IDENTITY.name}, full-stack engineer</span>
+
           {/*
+            no upper bound on the size: a fixed one stops the type growing while the field,
+            which is placed as a fraction of the viewport, keeps spreading out, and on a 4k
+            screen that left half the page dead between them.
+
             the mask has to clear the glyphs, not hug the line box. Anton's ink overflows
             its 0.82 line box by 0.034em at the top and 0.105em at the bottom (the Q tail),
             so the padding pushes the clip edges past both and the negative margins cancel
@@ -107,10 +113,10 @@ export function Hero() {
           */}
           <span
             aria-hidden="true"
-            className="block overflow-hidden pt-[0.08em] pb-[0.16em] mt-[-0.08em] mb-[-0.16em]"
+            className="display block overflow-hidden normal-case text-[max(2.75rem,14vw)] pt-[0.08em] pb-[0.16em] mt-[-0.08em] mb-[-0.16em]"
           >
             <span data-name className="block">
-              Isfaaq
+              Hello!
             </span>
           </span>
         </h1>
