@@ -1,8 +1,8 @@
-<p align="center">
-  <img src=".github/banner.png" alt="Isfaaq M. F. Emambocus, R&D Specialist at the LCSB, University of Luxembourg. Split diagonally to show the site in light and dark mode." width="100%">
-</p>
-
-# Portfolio
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/banner-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset=".github/banner-light.png">
+  <img src=".github/banner-dark.png" alt="Portfolio: one particle field that becomes every section of the page." width="100%">
+</picture>
 
 A single-page, scroll-driven portfolio. One particle field of 160,000 points takes a different form
 for each section of the page, so a single element appears to evolve the whole way down rather than
