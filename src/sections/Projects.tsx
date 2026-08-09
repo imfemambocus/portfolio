@@ -48,7 +48,7 @@ export function Projects() {
 
               <div className="mt-6 flex items-baseline justify-between gap-4">
                 <p className="text-sm text-accent">{project.kind}</p>
-                <span className="label shrink-0">{project.year}</span>
+                <span className="label shrink-0">Updated {project.updated}</span>
               </div>
 
               <p className="mt-4 leading-relaxed text-mist">{project.body}</p>

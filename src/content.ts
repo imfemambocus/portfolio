@@ -161,7 +161,8 @@ export type Project = {
   readonly id: string
   readonly name: string
   readonly kind: string
-  readonly year: string
+  // the year the project itself was last worked on, not the year the repo last saw a commit
+  readonly updated: string
   readonly stack: readonly string[]
   readonly body: string
   readonly repo: string
@@ -175,7 +176,7 @@ export const PROJECTS: readonly Project[] = [
     id: 'portfolio',
     name: 'Portfolio',
     kind: 'Side project',
-    year: '2026',
+    updated: '2026',
     stack: ['react-three-fiber', 'GLSL', 'GSAP', 'Lenis'],
     body: 'The site you are reading. One field of 160,000 particles takes a different form for every section, so a single element evolves the whole way down instead of each section animating on its own. Every form is a tile in one float texture and the morph runs in a vertex shader, so scrolling costs no CPU work.',
     repo: 'https://github.com/imfemambocus/portfolio',
@@ -186,7 +187,7 @@ export const PROJECTS: readonly Project[] = [
     id: 'chemspace',
     name: 'ChemSpace',
     kind: 'Side project',
-    year: '2026',
+    updated: '2026',
     stack: ['React', 'react-three-fiber', 'TypeScript', 'PubChem API'],
     body: 'A compound page that renders real 3D molecular structures pulled live from PubChem, with a property radar and druglikeness scoring computed client-side. Built to stay tiny on first paint: one WebGL context, everything else plain SVG.',
     repo: 'https://github.com/imfemambocus/chemspace',
@@ -197,7 +198,7 @@ export const PROJECTS: readonly Project[] = [
     id: 'sift',
     name: 'Sift',
     kind: 'Side project',
-    year: '2026',
+    updated: '2026',
     stack: ['Java', 'Spring Boot', 'React', 'PostgreSQL'],
     body: 'A notification hub that gathers GitLab activity and Gmail into one feed, and keeps only what actually concerns you. The fuzzy search lives inside the feed query, so Postgres does the matching, the filtering and the paging in a single statement.',
     repo: 'https://github.com/imfemambocus/sift',
@@ -208,7 +209,7 @@ export const PROJECTS: readonly Project[] = [
     id: 'farmlink',
     name: 'Farmlink',
     kind: 'MSc dissertation',
-    year: '2025',
+    updated: '2025',
     stack: ['React Native', 'FastAPI', 'scikit-learn', 'PostgreSQL'],
     body: 'An agricultural marketplace connecting Mauritian farmers directly with buyers, built around a hybrid recommender that pairs rule-based logic with collaborative filtering. Voice commands and English/French support were there so the app worked for the farmers, not just the buyers.',
     repo: 'https://github.com/imfemambocus/farmlink',
