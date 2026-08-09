@@ -173,7 +173,8 @@ const clumps: Layout = (count) => {
   const random = rng(3391)
   const out = new Float32Array(count * 3)
   const total = PROJECTS.length
-  const spread = 4.6
+  // the row keeps one width whatever the project count is, or a fourth clump runs off the frame
+  const spread = 9.2 / Math.max(total - 1, 1)
 
   for (let i = 0; i < count; i++) {
     const o = i * 3

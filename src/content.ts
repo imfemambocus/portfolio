@@ -164,16 +164,23 @@ export type Project = {
   readonly year: string
   readonly stack: readonly string[]
   readonly body: string
+  readonly repo: string
+  // the pair of banners from the project's own repo, in public/projects
+  readonly bannerDark: string
+  readonly bannerLight: string
 }
 
 export const PROJECTS: readonly Project[] = [
   {
-    id: 'farmlink',
-    name: 'Farmlink',
-    kind: 'MSc dissertation',
-    year: '2025',
-    stack: ['React Native', 'FastAPI', 'scikit-learn', 'PostgreSQL'],
-    body: 'An agricultural marketplace connecting Mauritian farmers directly with buyers, built around a hybrid recommender that pairs rule-based logic with collaborative filtering. Voice commands and English/French support were there so the app worked for the farmers, not just the buyers.',
+    id: 'portfolio',
+    name: 'Portfolio',
+    kind: 'Side project',
+    year: '2026',
+    stack: ['react-three-fiber', 'GLSL', 'GSAP', 'Lenis'],
+    body: 'The site you are reading. One field of 160,000 particles takes a different form for every section, so a single element evolves the whole way down instead of each section animating on its own. Every form is a tile in one float texture and the morph runs in a vertex shader, so scrolling costs no CPU work.',
+    repo: 'https://github.com/imfemambocus/portfolio',
+    bannerDark: '/projects/portfolio-dark.webp',
+    bannerLight: '/projects/portfolio-light.webp',
   },
   {
     id: 'chemspace',
@@ -182,14 +189,31 @@ export const PROJECTS: readonly Project[] = [
     year: '2026',
     stack: ['React', 'react-three-fiber', 'TypeScript', 'PubChem API'],
     body: 'A compound page that renders real 3D molecular structures pulled live from PubChem, with a property radar and druglikeness scoring computed client-side. Built to stay tiny on first paint: one WebGL context, everything else plain SVG.',
+    repo: 'https://github.com/imfemambocus/chemspace',
+    bannerDark: '/projects/chemspace-dark.webp',
+    bannerLight: '/projects/chemspace-light.webp',
   },
   {
-    id: 'portfolio',
-    name: 'This site',
+    id: 'sift',
+    name: 'Sift',
     kind: 'Side project',
     year: '2026',
-    stack: ['react-three-fiber', 'GLSL', 'GSAP', 'Lenis'],
-    body: 'Eighty thousand particles that never get replaced. Every form on this page is a tile in one float texture, and the morph between them happens entirely in a vertex shader, so scrolling costs no CPU work at all.',
+    stack: ['Java', 'Spring Boot', 'React', 'PostgreSQL'],
+    body: 'A notification hub that gathers GitLab activity and Gmail into one feed, and keeps only what actually concerns you. The fuzzy search lives inside the feed query, so Postgres does the matching, the filtering and the paging in a single statement.',
+    repo: 'https://github.com/imfemambocus/sift',
+    bannerDark: '/projects/sift-dark.webp',
+    bannerLight: '/projects/sift-light.webp',
+  },
+  {
+    id: 'farmlink',
+    name: 'Farmlink',
+    kind: 'MSc dissertation',
+    year: '2025',
+    stack: ['React Native', 'FastAPI', 'scikit-learn', 'PostgreSQL'],
+    body: 'An agricultural marketplace connecting Mauritian farmers directly with buyers, built around a hybrid recommender that pairs rule-based logic with collaborative filtering. Voice commands and English/French support were there so the app worked for the farmers, not just the buyers.',
+    repo: 'https://github.com/imfemambocus/farmlink',
+    bannerDark: '/projects/farmlink-dark.webp',
+    bannerLight: '/projects/farmlink-light.webp',
   },
 ] as const
 
