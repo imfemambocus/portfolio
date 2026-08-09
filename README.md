@@ -4,6 +4,8 @@
   <img src=".github/banner-dark.png" alt="Portfolio: one particle field that becomes every section of the page." width="100%">
 </picture>
 
+## About
+
 A single-page, scroll-driven portfolio. One particle field of 160,000 points takes a different form
 for each section of the page, so a single element appears to evolve the whole way down rather than
 each section animating on its own.
