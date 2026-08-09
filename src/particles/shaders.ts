@@ -1,11 +1,11 @@
 /*
  * every layout is packed into one float texture and the morph is a texture fetch
  * plus a mix in the vertex shader, so adding a layout costs a tile rather than a
- * per-frame cpu pass over 80k positions.
+ * per-frame cpu pass over 160k positions.
  *
  * the layouts are tiled into a narrow grid (uTexW wide, uTileH rows each, stacked
  * vertically) rather than one row per layout. one row per layout would need a
- * texture COUNT texels wide, and 80000 blows past the 16384 MAX_TEXTURE_SIZE most
+ * texture COUNT texels wide, and 160000 blows past the 16384 MAX_TEXTURE_SIZE most
  * GPUs report: the texture silently fails to upload, every fetch returns zero, and
  * the whole field collapses onto the origin.
  */
