@@ -167,9 +167,20 @@ export type Project = {
 
 export const PROJECTS: readonly Project[] = [
   {
+    id: 'sley-ui',
+    name: 'Sley UI',
+    kind: 'Component registry',
+    updated: '2026',
+    stack: ['React', 'TypeScript', 'Ark UI', 'Tailwind v4'],
+    body: 'React components for the interfaces that hold a lot of data: tables, filter bars, command palettes, long forms. A command copies the source into your project instead of adding a dependency, and one attribute on the root element moves every component between comfortable, compact and dense.',
+    repo: 'https://github.com/imfemambocus/sley-ui',
+    bannerDark: '/projects/sley-ui-dark.webp',
+    bannerLight: '/projects/sley-ui-light.webp',
+  },
+  {
     id: 'portfolio',
     name: 'Portfolio',
-    kind: 'Side project',
+    kind: 'Personal site',
     updated: '2026',
     stack: ['react-three-fiber', 'GLSL', 'GSAP', 'Lenis'],
     body: 'The site you are reading. One field of 160,000 particles takes a different form for every section, so a single element evolves the whole way down instead of each section animating on its own. Every form is a tile in one float texture and the morph runs in a vertex shader, so scrolling costs no CPU work.',
@@ -180,7 +191,7 @@ export const PROJECTS: readonly Project[] = [
   {
     id: 'chemspace',
     name: 'ChemSpace',
-    kind: 'Side project',
+    kind: 'Molecule viewer',
     updated: '2026',
     stack: ['React', 'react-three-fiber', 'TypeScript', 'PubChem API'],
     body: 'A compound page that renders real 3D molecular structures pulled live from PubChem, with a property radar and druglikeness scoring computed client-side. Built to stay tiny on first paint: one WebGL context, everything else plain SVG.',
@@ -191,7 +202,7 @@ export const PROJECTS: readonly Project[] = [
   {
     id: 'sift',
     name: 'Sift',
-    kind: 'Side project',
+    kind: 'Notification hub',
     updated: '2026',
     stack: ['Java', 'Spring Boot', 'React', 'PostgreSQL'],
     body: 'A notification hub that gathers GitLab activity and Gmail into one feed, and keeps only what actually concerns you. The fuzzy search lives inside the feed query, so Postgres does the matching, the filtering and the paging in a single statement.',
