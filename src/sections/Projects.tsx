@@ -1,22 +1,17 @@
 import { PROJECTS, type Project } from '../content'
-import { useTheme } from '../theme'
 import { useReveal } from '../useReveal'
 import { PAD, Section } from './Section'
 
 const slug = (repo: string) => repo.replace('https://github.com/', '')
 
 /*
- * the banner is deliberately the opposite theme to the page: each one is a flat panel in
- * its project's own palette, so the light banner on the dark page (and the reverse) reads
- * as an object sitting on the surface instead of dissolving into it.
+ * the dark banner in both themes: it is a flat panel in the project's own palette, so it
+ * reads as an object sitting on the surface rather than dissolving into it.
  */
 function Banner({ project }: { readonly project: Project }) {
-  const theme = useTheme()
-  const src = theme === 'light' ? project.bannerDark : project.bannerLight
-
   return (
     <img
-      src={src}
+      src={project.bannerDark}
       alt=""
       loading="lazy"
       decoding="async"
