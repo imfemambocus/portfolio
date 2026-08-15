@@ -181,16 +181,21 @@ underneath. Both are skipped if you prefer reduced motion.
 
 ## The hero type
 
-The greeting and the line under it are flush at both ends, at every width. The second line is sized
-so its ink is exactly as wide as the word above it, rather than being set to a size that looks close.
+Lining the second line up under the greeting took two corrections, and one margin carries both.
 
-Boxes are no help for that. `getBoundingClientRect` includes the trailing letter-spacing after the
-last character, and it includes each glyph's side bearing, so two boxes can sit on the same column
-while the letters visibly do not. The Anton `G` starts 0.0289em inside its box and the monospace `I`
-starts 0.0737em inside its own, because a narrow `I` sits centred in a 0.6em cell, which left the `I`
-overhanging the `G` by 5px on a 4K screen. So the numbers come off the rendered pixels instead: hide
-the canvas, screenshot, and scan each line for its first and last lit column. The left edges land on
-the same column at 390, 1440 and 3840, and the right edges agree to within a pixel.
+Boxes are no help for the first. `getBoundingClientRect` includes the trailing letter-spacing after
+the last character, and it includes each glyph's side bearing, so two boxes can sit on the same
+column while the letters visibly do not. The Anton `G` starts 0.0289em inside its box and the
+monospace `I` starts 0.0737em inside its own, because a narrow `I` sits centred in a 0.6em cell,
+which left the `I` overhanging the `G` by 5px on a 4K screen. The numbers come off the rendered
+pixels instead: hide the canvas, screenshot, and scan each line for its first lit column.
+
+Even flush, it still looked wrong, because the `G` is round. It holds its leftmost point for the
+middle 60% of the cap height and then curves away, ending 26px inside that point on its last row at
+4K. A flat stem set exactly on the extreme reads as sticking out under the curve, so the second line
+carries a further 2% of the greeting's size as optical allowance. It is sized as a fraction of the
+greeting rather than in its own units, which keeps one ratio between the two and lets the single
+margin hold at every width.
 
 ## Reduced motion
 

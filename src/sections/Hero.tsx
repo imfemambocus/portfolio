@@ -97,7 +97,7 @@ export function Hero() {
           </div>
         </header>
 
-        <h1 className="my-8">
+        <h1 className="my-8 text-[max(2.75rem,7vw)]">
           <span className="sr-only">{IDENTITY.name}, full-stack engineer</span>
 
           {/*
@@ -113,7 +113,7 @@ export function Hero() {
           */}
           <span
             aria-hidden="true"
-            className="display block overflow-hidden text-[max(3.5175rem,9vw)] pt-[0.08em] pb-[0.16em] mt-[-0.08em] mb-[-0.16em]"
+            className="display block overflow-hidden pt-[0.08em] pb-[0.16em] mt-[-0.08em] mb-[-0.16em]"
           >
             <span data-name className="block">
               Greetings
@@ -121,18 +121,21 @@ export function Hero() {
           </span>
 
           {/*
-            the two lines are flush at both ends, and the numbers come off the rendered
-            pixels rather than off the boxes: the greeting ink starts 0.0289em inside its
-            box and the mono I starts 0.0737em inside its own, so boxes that line up leave
-            the I overhanging the G by 5px at 3840. the margin cancels that difference and
-            1.759vw makes the ink widths equal, 3.7095em of Anton against 18.978em of mono.
-            the floors hold the same ratio, so both stay flush once they bind, below 625px.
-            change either line and all of it has to be measured again.
+            the margin is two corrections in one number, both of them measured off the
+            rendered pixels rather than off the boxes. the greeting ink starts 0.0289em
+            inside its box and the mono I starts 0.0737em inside its own, so boxes that
+            line up leave the I overhanging the G. then the G is round: it holds its
+            extreme for the middle 60% of the cap height and retreats to 1.5% of that
+            height inside on average, so a stem set flush with the extreme reads as
+            sticking out under the curve. the optical allowance is 2% of the greeting.
+            sizing this line as a fraction of the greeting keeps one ratio between them,
+            so the single margin holds at every width. the 11px floor is the exception,
+            and it puts the I 1.3px further right than it wants under 400px.
           */}
           <span
             aria-hidden="true"
             data-fade
-            className="mt-5 ml-[0.074em] block font-mono uppercase tracking-[0.28em] text-mist text-[max(0.6875rem,1.759vw)]"
+            className="mt-5 ml-[0.237em] block font-mono uppercase tracking-[0.28em] text-mist text-[max(0.6875rem,0.157em)]"
           >
             I measure what I build
           </span>
