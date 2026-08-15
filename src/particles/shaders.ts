@@ -1,13 +1,8 @@
 /*
- * every layout is packed into one float texture and the morph is a texture fetch
- * plus a mix in the vertex shader, so adding a layout costs a tile rather than a
- * per-frame cpu pass over 160k positions.
- *
- * the layouts are tiled into a narrow grid (uTexW wide, uTileH rows each, stacked
- * vertically) rather than one row per layout. one row per layout would need a
- * texture COUNT texels wide, and 160000 blows past the 16384 MAX_TEXTURE_SIZE most
- * GPUs report: the texture silently fails to upload, every fetch returns zero, and
- * the whole field collapses onto the origin.
+ * every layout is packed into one float texture, and the morph is a texture fetch plus a
+ * mix in the vertex shader. adding a layout therefore costs a tile, not a per-frame cpu
+ * pass over 160k positions. the tiling itself is uTexW wide and uTileH rows deep per
+ * layout, stacked vertically.
  */
 export const vertexShader = /* glsl */ `
 uniform sampler2D uLayouts;
@@ -92,8 +87,8 @@ void main() {
 
   vec3 color = mix(uColorA, uColorB, vSeed);
 
-  // the mid-transition burst brightens on dark and deepens on light, where pushing
-  // toward white would make the particles dissolve into the page instead of flaring
+  // the burst brightens on dark and deepens on light; toward white there, points would
+  // dissolve into the page instead of flaring
   color = mix(color, mix(vec3(1.0), vec3(0.0), uLightMode), vGlow * 0.4);
 
   // light needs the full alpha: normal blending accumulates far more gently than additive,

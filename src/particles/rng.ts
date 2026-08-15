@@ -1,7 +1,7 @@
 /*
- * mulberry32, deterministic on purpose. everything the field's look depends on is
- * art-directed, so the same structure and the same per-particle variation have to come
- * back on every reload. decorative only, never used for anything security related.
+ * mulberry32, deterministic on purpose. the forms are art-directed, and both the
+ * structure and the per-particle variation have to come back identically on every
+ * reload. decorative only, never used for anything security related.
  */
 export function rng(seed: number) {
   let s = seed >>> 0

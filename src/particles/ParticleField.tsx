@@ -31,71 +31,55 @@ import { prefersReducedMotion, scroll } from '../scroll'
 const COUNT = prefersReducedMotion ? 22000 : 160000
 
 /*
- * layouts are tiled into a narrow grid instead of one row each: a row-per-layout
- * texture would be COUNT texels wide, and 160000 exceeds the 16384 MAX_TEXTURE_SIZE
- * most GPUs report, so the upload fails and every particle collapses to the origin.
+ * a row per layout would make the texture COUNT texels wide. 160000 is past the 16384
+ * MAX_TEXTURE_SIZE most GPUs report: the upload fails silently and every particle
+ * collapses onto the origin. tile it into a narrow grid instead.
  */
 const TEX_W = 256
 const TILE_H = Math.ceil(COUNT / TEX_W)
 
 /*
- * light mode is not just a palette swap. additive blending only ever brightens, so on
- * an off-white page it does nothing at all: dark particles need normal blending, and
- * bloom is switched off in Scene for the same reason.
+ * light mode is not a palette swap. additive blending only ever brightens and does
+ * nothing at all on an off-white page: light needs normal blending, and Scene turns
+ * bloom off for the same reason.
  *
- * on dark both tones are pure greys, b being a at 80% brightness. the field is the one
- * place a tint cannot hide: additive blending clips dense cores to white while the
- * sparse fringe keeps the point colour, so any channel that leads becomes a coloured
- * glow around every cluster. it read blue at #bfcbd2 and yellow while it tracked the
- * warm `ink` token. depth here comes from brightness, never from hue.
+ * the dark tones are pure greys, b being a at 80% brightness. additive blending clips
+ * dense cores to white while the sparse fringe keeps the point colour, and whichever
+ * channel leads becomes a coloured glow around every cluster. depth comes from
+ * brightness here, never from hue.
  */
 const PALETTE: Record<Theme, { a: string; b: string; blending: Blending }> = {
   dark: { a: '#f6f6f6', b: '#c5c5c5', blending: AdditiveBlending },
   light: { a: '#17171c', b: '#2f3a40', blending: NormalBlending },
 }
 
-/*
- * how far the field dips while the theme crosses over. not to zero: a full blink is more
- * noticeable than the swap it hides. at 8% the difference between additive and normal is
- * imperceptible even against the mid-grey the background passes through.
- */
+/* not zero: a full blink is more noticeable than the swap it hides */
 const THEME_DIP = 0.08
 
 /*
- * gl_PointSize is in device pixels, so a fixed value makes the field thin out as the
- * drawing buffer grows rather than holding its share of the screen: ink coverage over
- * the hero region measured 27.9% on a 2520x1575 buffer against 6.3% on 5760x3240.
- * sizing against that reference height keeps a point a constant fraction of the frame.
+ * gl_PointSize is in device pixels. a fixed value thins the field out as the drawing
+ * buffer grows: ink coverage over the hero measured 27.9% on 2520x1575 against 6.3% on
+ * 5760x3240. sizing against the reference height holds a point at a constant fraction
+ * of the frame.
  */
 const BASE_POINT_SIZE = 3.2
 const REFERENCE_BUFFER_H = 1575
 
 /*
- * the world width the art direction was tuned against (1440x900 at fov 52, z 9). the fov
- * is fixed, so a wider viewport simply shows more world and a form sized in world units
- * shrinks as a fraction of the screen: the hero plume measured 50% of the width at that
- * aspect against 45% at 16:9. scaling by the ratio holds its share instead.
+ * the world width the forms were art-directed against (1440x900 at fov 52, z 9). the fov
+ * is fixed, so a wider viewport shows more world and a form sized in world units shrinks
+ * against the screen: the hero plume measured 50% of the width there against 45% at 16:9.
  *
- * clamped so it only ever grows. below the reference the form is already wider than the
- * viewport, and shrinking it there would turn a full-bleed background into a small motif
- * floating in the middle of a phone screen.
+ * the gain only ever grows. below the reference the forms already overfill the viewport,
+ * and shrinking would turn a full-bleed background into a small motif on a phone.
  */
 const REFERENCE_WORLD_WIDTH = 14.05
 const MAX_VIEWPORT_GAIN = 1.5
 
-/*
- * the field sways rather than turning. this used to accumulate rotation.y forever, which
- * is invisible on a blob but not on a form built to run off the edges: given long enough
- * it turns far enough to swing the ends of the waves into frame, and no amount of extra
- * size fixes that, since at a quarter turn the form is edge-on whatever its extent.
- *
- * amplitude times speed is roughly the old angular rate, so the motion reads the same at
- * the crossing, it just never leaves this range.
- */
+/* bounded, never accumulated: a form built to run off the edges swings its ends into frame */
 const SWAY_ANGLE = 0.1
 const SWAY_SPEED = 0.2
 
-/* 1 at rest, easing down to THEME_DIP at the crossover and back up again */
 function themeDip(start: { current: number }) {
   if (start.current < 0) return 1
 
@@ -233,7 +217,7 @@ export function ParticleField() {
     material.current.uniforms.uMorph.value = morph.current
     if (!prefersReducedMotion) material.current.uniforms.uTime.value += delta
 
-    // art direction rides the same morph value as the positions, so it never lags the form
+    // art direction interpolates on the same morph value as the positions; it must not lag the form
     const i0 = Math.floor(morph.current)
     const i1 = Math.min(i0 + 1, LAYOUT_STYLES.length - 1)
     const t = morph.current - i0
@@ -248,10 +232,9 @@ export function ParticleField() {
     material.current.uniforms.uOpacity.value =
       (fromOpacity + (toOpacity - fromOpacity) * t) * themeDip(dipStart)
     /*
-     * offsetX rides the gain along with the scale: it is a world-unit displacement, so
-     * leaving it fixed while the form grows would slide the form left relative to the
-     * copy it is meant to sit beside. offsetY does not, since the visible world height
-     * does not change with aspect.
+     * offsetX rides the gain with the scale. it is a world-unit displacement, and leaving
+     * it fixed while the form grows slides the form off the copy it sits beside. offsetY
+     * does not: the visible world height does not change with aspect.
      */
     const gain = Math.min(
       Math.max(state.viewport.width / REFERENCE_WORLD_WIDTH, 1),
@@ -277,9 +260,9 @@ export function ParticleField() {
     if (prefersReducedMotion) return
 
     /*
-     * where the cursor crosses the z=0 plane, in the field's own space. the field is
-     * moved and scaled by its layout style, so both have to come back off before the
-     * shader sees it, or the repulsion drifts away from the actual cursor.
+     * where the cursor crosses z=0, in the field's own space. the layout style moves and
+     * scales the field, and both have to come back off before the shader sees it, or the
+     * repulsion drifts away from the actual cursor.
      */
     cursor.set(pointer.x, -pointer.y, 0.5).unproject(camera).sub(camera.position).normalize()
     const travel = -camera.position.z / cursor.z

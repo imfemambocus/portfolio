@@ -2,10 +2,9 @@ import { PROJECTS, ROLES, SKILL_CLUSTERS } from '../content'
 import { rng } from './rng'
 
 /*
- * each layout is one form the particle field takes. scroll interpolates between
- * consecutive layouts, so the order here IS the order down the page and must stay
- * in step with SECTIONS in App.tsx. a seeded rng keeps every form stable across
- * reloads, which matters because the forms are art-directed, not incidental.
+ * each layout is one form the field takes, and scroll interpolates between consecutive
+ * ones. the order here IS the order down the page: keep it in step with SECTIONS in
+ * App.tsx. every form is art-directed rather than incidental, hence the seeded rng.
  */
 
 export type Layout = (count: number) => Float32Array
@@ -18,15 +17,13 @@ function onSphere(random: () => number) {
 }
 
 /*
- * parallel wave lines running on a diagonal, low and calm at the bottom left and building
- * as they sweep to the top right.
+ * parallel wave lines on a diagonal, calm at the bottom left and building as they sweep
+ * to the top right.
  *
- * this form is deliberately much wider and taller than the viewport, and that is the whole
- * point of it. every earlier hero form was a compact object sitting to the right of the
- * copy, which read as a two-column layout; a form that bleeds off all four edges has no
- * silhouette to read as a column at all. the field mask fades the canvas out towards the
- * left, so the same gradient that protects the copy also does the work of making the waves
- * emerge from the lower left rather than starting abruptly.
+ * the span and spread deliberately exceed the viewport. a compact form confined to the
+ * right of the copy reads as a second column; one that bleeds off all four edges leaves
+ * no silhouette to read as a column at all. the field mask fades the canvas out to the
+ * left, and that same ramp is the gradient the waves emerge along.
  */
 const WAVE_LINES = 6
 const WAVE_ANGLE = 0.5
@@ -37,10 +34,9 @@ const WAVE_AMP = 0.6
 const WAVE_THICKNESS = 0.8
 
 /*
- * neighbouring lines are shifted by a small, constant amount rather than given random
- * phases. random phases made every line independent, so the form read as a tangle of
- * separate strands; stepping the phase makes the crests line up into wavefronts that
- * travel across the field, which is what actually reads as waves.
+ * a small constant shift between neighbours, never random phases. independent lines read
+ * as a tangle of strands; a stepped phase lines the crests up into wavefronts, which is
+ * what reads as waves at all.
  */
 const WAVE_PHASE_STEP = 0.28
 
@@ -48,11 +44,7 @@ const WAVE_PHASE_STEP = 0.28
 const WAVE_BUILD = 1.7
 const WAVE_DEPTH = 0.5
 
-/*
- * particles are biased along the sweep rather than spread evenly, so the top right carries
- * more of them. an even spread made the build in amplitude read as the waves merely getting
- * taller, not as the field gathering.
- */
+// biased along the sweep. spread evenly, the build reads as taller waves, not a gathering field
 const WAVE_BIAS = 0.68
 
 const waves: Layout = (count) => {
@@ -65,7 +57,7 @@ const waves: Layout = (count) => {
   const phases = new Float32Array(WAVE_LINES)
   const wobble = new Float32Array(WAVE_LINES)
   for (let i = 0; i < WAVE_LINES; i++) {
-    // a touch of jitter on top of the step, so the wavefronts are not mechanically straight
+    // jitter on top of the step; mechanically straight wavefronts look drawn
     phases[i] = i * WAVE_PHASE_STEP + (random() - 0.5) * 0.12
     wobble[i] = 0.96 + random() * 0.08
   }
@@ -86,9 +78,8 @@ const waves: Layout = (count) => {
 
     /*
      * squaring the triangular spread while keeping its sign gives the band a dense core
-     * that feathers out, rather than a uniform grey slab. spread flat across a band this
-     * wide, the particle budget covered so much area that the waves lost their edges and
-     * merged into a single haze.
+     * that feathers out. flat across a band this wide, the particle budget covers so much
+     * area that the waves lose their edges and merge into one haze.
      */
     const spread = random() - random()
     const offset = across + crest + spread * Math.abs(spread) * WAVE_THICKNESS
@@ -117,10 +108,7 @@ const cloud: Layout = (count) => {
   return out
 }
 
-/*
- * one horizontal band per role, oldest at the bottom, so scrolling the experience
- * section reads as climbing the career rather than paging through a list.
- */
+// one band per role, oldest at the bottom: scrolling the section climbs the career
 const strata: Layout = (count) => {
   const random = rng(2214)
   const out = new Float32Array(count * 3)
@@ -200,12 +188,6 @@ export const LAYOUTS: readonly Layout[] = [
   waves,
 ]
 
-/*
- * per-form art direction, interpolated with the same morph value as the positions.
- * the hero and close forms sit right of centre so they do not fight the type, and
- * the content-heavy sections dim the field right down: at full strength it reads as
- * fog over the copy rather than atmosphere behind it.
- */
 export type LayoutStyle = {
   readonly offsetX: number
   readonly offsetY: number
@@ -216,11 +198,15 @@ export type LayoutStyle = {
 }
 
 /*
- * light needs its own opacity per form, not a single global gain. on dark the field is
- * additive and bloomed, so overlapping points compound and a low number still reads; on
- * light it is normal-blended with no bloom, which accumulates linearly, and the dim
- * mid-page forms sit under the most opaque part of the mask as well. the two effects
- * multiply, so the forms that are dimmest on dark are the ones that vanish on light.
+ * per-form art direction, interpolated on the same morph value as the positions. the
+ * content-heavy sections dim the field right down: at full strength it reads as fog over
+ * the copy rather than atmosphere behind it.
+ *
+ * light needs its own opacity per form, not one global gain. dark is additive and bloomed,
+ * so overlapping points compound and a low number still reads. light is normal-blended
+ * with no bloom, accumulates linearly, and the dim mid-page forms also sit under the most
+ * opaque part of the mask. the two effects multiply: the forms dimmest on dark are exactly
+ * the ones that vanish on light.
  */
 export const LAYOUT_STYLES: readonly LayoutStyle[] = [
   { offsetX: 0, offsetY: 0, scale: 1, opacity: 1, opacityLight: 1, pointer: 0.2 },
