@@ -28,18 +28,19 @@ export function Projects() {
           04 / Selected work
         </p>
 
-        <div data-reveal className="mt-14 grid gap-10 lg:grid-cols-3">
-          {PROJECTS.map((project) => (
+        {/* two cards per row of three columns: the empty one is where the clumps sit */}
+        <div data-reveal className="mt-14 grid gap-x-12 gap-y-16 lg:grid-cols-3">
+          {PROJECTS.map((project, i) => (
             <article
               key={project.id}
-              className="flex flex-col rounded-xl border border-haze p-5 backdrop-blur-[2px]"
+              className={`flex flex-col ${i % 2 === 0 ? 'lg:col-start-1' : 'lg:col-start-2'}`}
             >
               <Banner project={project} />
 
               {/* the banner carries the name; this heading is only here for the outline */}
               <h3 className="sr-only">{project.name}</h3>
 
-              <div className="mt-6 flex items-baseline justify-between gap-4">
+              <div className="mt-5 flex items-baseline justify-between gap-4">
                 <p className="text-sm text-accent">{project.kind}</p>
                 <span className="label shrink-0">Updated {project.updated}</span>
               </div>
