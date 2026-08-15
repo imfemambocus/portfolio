@@ -21,9 +21,9 @@ const PUBLIC = resolve(ROOT, 'public')
 const TILE = 32
 const RADIUS = 7
 /*
- * 23 of 32, arrived at by rasterising and looking. Anton's counters are tight, so at
- * edge to edge the E fills in and the monogram turns to mush at 16px. this leaves the
- * tile visibly framing the letters, which is what keeps them legible small.
+ * 23 of 32, arrived at by rasterising at 16px and looking. Anton's counters are tight:
+ * edge to edge the E fills in and the monogram turns to mush. the tile has to visibly
+ * frame the letters for them to stay legible small.
  */
 const INK_HEIGHT = 23
 const OFF_BLACK = '#070707'
@@ -55,18 +55,18 @@ path.commands.forEach((command) => {
 })
 
 /*
- * the tile inverts on dark. an off-black tile on a dark tab strip is 1.2:1, so the badge
- * dissolves and only the letters survive; inverting keeps a solid mark in both.
+ * the tile inverts on dark. an off-black tile on a dark tab strip measures 1.2:1: the
+ * badge dissolves and only the letters survive. inverting keeps a solid mark in both.
  *
- * this follows prefers-color-scheme, not the app's own theme, and that is deliberate:
- * the tab strip follows the OS, so the OS is the signal that actually matches the
- * surface this sits on. wiring it to the in-app toggle would put an off-black tile on a
- * dark tab strip for anyone on a dark OS who chooses light on the site.
+ * it follows prefers-color-scheme rather than the app's own theme, deliberately. the tab
+ * strip follows the OS, so the OS is the signal that matches the surface this sits on.
+ * the in-app toggle would put an off-black tile on a dark tab strip for anyone on a dark
+ * OS who picks light on the site.
  *
- * the colours are presentation attributes with CSS only for the dark case. CSS beats
- * presentation attributes, so anything that ignores the stylesheet (every rasteriser,
- * including the one generating the PNGs below) still gets the light-chrome version
- * rather than an unstyled black-on-black square.
+ * the colours are presentation attributes with CSS supplying only the dark case. CSS
+ * beats presentation attributes, which leaves any rasteriser that ignores the stylesheet
+ * (the one generating the PNGs below included) with the light-chrome version instead of
+ * an unstyled black-on-black square.
  */
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${TILE} ${TILE}" width="${TILE}" height="${TILE}">
   <style>

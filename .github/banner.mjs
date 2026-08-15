@@ -7,8 +7,8 @@ import { fileURLToPath } from 'node:url'
  * builds the readme banner, one file per theme. writes a self-contained banner.html
  * (fonts embedded, so it renders identically anywhere) and screenshots it twice.
  *
- * html and png rather than svg on purpose: github will not load a webfont for an svg in a
- * readme, so an svg version falls back to whatever face the viewer happens to have.
+ * html and png rather than svg on purpose. github will not load a webfont for an svg in a
+ * readme: an svg version falls back to whatever face the viewer happens to have.
  * rasterising keeps the type exact and lets the particles use real additive blending.
  *
  *   npm install --no-save puppeteer && node .github/banner.mjs
@@ -92,7 +92,7 @@ const page = `<!doctype html>
 
   .motif { width: ${MOTIF_W}px; height: ${MOTIF_H}px; flex: none; position: relative; overflow: hidden; }
   canvas { position: absolute; inset: 0; width: ${MOTIF_W}px; height: ${MOTIF_H}px; }
-  /* a soft vignette, so the field has no rectangular edge to read as a cropped screenshot */
+  /* a soft vignette. a rectangular edge reads as a screenshot cropped onto the panel */
   #field {
     mask-image: radial-gradient(closest-side ellipse at 50% 50%, #000 45%, transparent 100%);
   }
@@ -127,8 +127,8 @@ const page = `<!doctype html>
 
   /*
    * the site's own diagonal waves, kept in step with LAYOUTS[0] in src/particles/layouts.ts.
-   * this file cannot import from src, so the constants are duplicated: change them there and
-   * change them here, or the readme stops matching the site.
+   * nothing here can import from src, hence the duplicated constants. change them in both
+   * places or the readme quietly stops matching the site.
    */
   var WAVE_LINES = 6, WAVE_ANGLE = 0.5, WAVE_SPAN = 20, WAVE_SPREAD = 12;
   var WAVE_FREQ = 0.62, WAVE_AMP = 0.6, WAVE_THICKNESS = 0.8;
