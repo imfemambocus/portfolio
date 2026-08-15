@@ -14,6 +14,7 @@ export const IDENTITY = {
   email: 'imfemambocus@gmail.com',
   github: 'https://github.com/imfemambocus',
   linkedin: 'https://www.linkedin.com/in/isfaaqemambocus-softwareengineer/',
+  x: 'https://x.com/IMFEmambocus',
 } as const
 
 export const HERO_META = [

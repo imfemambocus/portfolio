@@ -6,6 +6,7 @@ const LINKS = [
   { id: 'email', label: 'Email', href: `mailto:${IDENTITY.email}`, text: IDENTITY.email },
   { id: 'github', label: 'GitHub', href: IDENTITY.github, text: 'imfemambocus' },
   { id: 'linkedin', label: 'LinkedIn', href: IDENTITY.linkedin, text: 'isfaaqemambocus' },
+  { id: 'x', label: 'X', href: IDENTITY.x, text: '@IMFEmambocus' },
 ] as const
 
 export function Close() {
