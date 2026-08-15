@@ -1,4 +1,5 @@
 import { Analytics } from '@vercel/analytics/react'
+import { SpeedInsights } from '@vercel/speed-insights/react'
 import { lazy, Suspense, useEffect } from 'react'
 import { initScroll } from './scroll'
 import { Scrollbar } from './Scrollbar'
@@ -43,6 +44,7 @@ export function App() {
 
       <Scrollbar />
       <Analytics />
+      <SpeedInsights />
     </>
   )
 }
