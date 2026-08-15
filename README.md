@@ -75,7 +75,7 @@ when the content changes rather than needing to be retuned by hand.
 | Profile | Wide cloud with depth | Procedural |
 | Experience | Horizontal strata, one band per role, newer roles higher and wider | `ROLES` |
 | Toolkit | Clusters with a halo of strays | `SKILL_CLUSTERS` |
-| Work | Discrete clumps behind the cards | `PROJECTS` |
+| Work | Discrete clumps, one per project, in the column the cards leave open | `PROJECTS` |
 | Contact | Returns to the waves | Reuses the hero generator |
 
 ## Stack
