@@ -179,6 +179,19 @@ Switching between them crossfades rather than snaps. The page colours interpolat
 included, and the field dips briefly and comes back, which is what covers the blending change
 underneath. Both are skipped if you prefer reduced motion.
 
+## The hero type
+
+The greeting and the line under it are flush at both ends, at every width. The second line is sized
+so its ink is exactly as wide as the word above it, rather than being set to a size that looks close.
+
+Boxes are no help for that. `getBoundingClientRect` includes the trailing letter-spacing after the
+last character, and it includes each glyph's side bearing, so two boxes can sit on the same column
+while the letters visibly do not. The Anton `G` starts 0.0289em inside its box and the monospace `I`
+starts 0.0737em inside its own, because a narrow `I` sits centred in a 0.6em cell, which left the `I`
+overhanging the `G` by 5px on a 4K screen. So the numbers come off the rendered pixels instead: hide
+the canvas, screenshot, and scan each line for its first and last lit column. The left edges land on
+the same column at 390, 1440 and 3840, and the right edges agree to within a pixel.
+
 ## Reduced motion
 
 `prefers-reduced-motion` gets a genuinely different build rather than the animated site with the
