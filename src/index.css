@@ -5,14 +5,13 @@
 
 /*
  * paper is the surface, ink is what is written on it. the two swap values between
- * themes, so every existing utility follows without a single class change and there
- * is no `dark:` variant anywhere in the app.
+ * themes: every utility follows without a class change, and the app carries no
+ * `dark:` variant anywhere.
  */
 @theme {
   /*
-   * the dark neutrals are true neutrals: equal channels, no cool cast. paper was #07070a
-   * and haze #26262a, both carrying a few points of extra blue, which is invisible on an
-   * LCD and reads as a blue tint on an OLED, where black is genuinely black.
+   * true neutrals, equal channels. a few points of extra blue is invisible on an LCD
+   * and reads as a cool cast on an OLED, where black is genuinely black.
    */
   --color-paper: #070707;
   --color-ink: #f6f6f3;
@@ -21,8 +20,8 @@
 
   /*
    * the signature blue. the two hexes share hue and saturation and differ only in
-   * lightness. light mode uses #0e7490; that value on this dark surface measures 3.1:1,
-   * under the 4.5:1 floor, so dark lifts it rather than failing on links and labels.
+   * lightness: light mode's #0e7490 measures 3.1:1 on this dark surface, under the
+   * 4.5:1 floor, so dark lifts it rather than failing on every link and label.
    */
   --color-accent: #23a8cc;
 
@@ -33,11 +32,9 @@
 
 /*
  * registering the tokens is what makes a theme change ease instead of snap. an
- * unregistered custom property is an untyped token and cannot be interpolated, so it
- * jumps and takes every consumer with it. registered, the transition below eases all of
- * them at once, gradients included, which matters because the scrim is a gradient and
- * background-image is not transitionable any other way. browsers without @property just
- * get the old instant swap.
+ * unregistered custom property is an untyped token and cannot be interpolated: it jumps,
+ * and takes every consumer with it. registered as <color>, the transition below eases
+ * all of them at once, gradients included. browsers without @property swap instantly.
  */
 @property --color-paper {
   syntax: '<color>';
@@ -65,12 +62,11 @@
   initial-value: #23a8cc;
 }
 
-/* dark is the default, so it is the base and light is the override: a visitor with no
-   stored choice, or with javascript off, gets dark rather than a flash of the wrong one */
+/* dark is the base and light the override. no stored choice, or no javascript, gets dark */
 :root {
   color-scheme: dark;
 
-  /* twice THEME_FADE_MS in theme.ts, so the DOM and the field land together */
+  /* twice THEME_FADE_MS in theme.ts: the DOM and the field have to land together */
   transition:
     --color-paper 440ms ease,
     --color-ink 440ms ease,
@@ -99,7 +95,7 @@ html {
   background: var(--color-paper);
 }
 
-/* replaced by src/Scrollbar.tsx: no native scrollbar can float without reserving a gutter */
+/* src/Scrollbar.tsx draws this one. no native scrollbar can float without reserving a gutter */
 html {
   scrollbar-width: none;
 }
@@ -129,14 +125,10 @@ body {
 }
 
 /*
- * the field fades out to the left with a mask on the canvas, not with a paper gradient
- * painted over it. compositing paper over paper is what produced the vertical banding:
- * partial alpha floors a level, so the covered region rendered 6 against the page's 7,
- * which is invisible on an lcd and a seam on an oled. a mask only scales the canvas
- * alpha, so wherever the field is not drawing the page is exactly --color-paper.
- *
- * the stops are the old scrim's inverted: it was opaque paper to 10% and 85% at 45%,
- * so the field is hidden to 10% and 15% visible at 45%.
+ * a mask on the canvas, never a paper gradient painted over it. partial alpha floors a
+ * level in the compositor: a covered near-black region renders 6 against the page's 7,
+ * invisible on an lcd and a vertical seam on an oled. a mask only scales the canvas
+ * alpha, which leaves the page exactly --color-paper wherever the field is not drawing.
  */
 @utility field-mask {
   mask-image: linear-gradient(

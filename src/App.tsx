@@ -13,10 +13,7 @@ import { Skills } from './sections/Skills'
 // three and the postprocessing chain are most of the bundle; the text must not wait on them
 const Scene = lazy(() => import('./Scene').then((module) => ({ default: module.Scene })))
 
-/*
- * section order must stay in step with LAYOUTS in particles/layouts.ts: there is
- * one particle form per section, and scroll position maps onto that list by index.
- */
+// one particle form per section, mapped by index. a new section needs a new LAYOUT too
 export function App() {
   useEffect(initScroll, [])
 

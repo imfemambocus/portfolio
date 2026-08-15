@@ -7,11 +7,7 @@ type Props = {
   readonly children: ReactNode
 }
 
-/*
- * every section registers itself so scroll.ts can map scroll position onto a
- * fractional layout index. registration order does not matter: scroll.ts sorts
- * by document position when it measures.
- */
+// registration order does not matter. scroll.ts sorts by document position when it measures
 export function Section({ id, className = '', children }: Props) {
   const ref = useRef<HTMLElement>(null)
 

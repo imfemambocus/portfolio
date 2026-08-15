@@ -1,9 +1,3 @@
-/*
- * the single place real content lives. the source CV is outdated and wrong in
- * places, so this file supersedes it. see CLAUDE.md for what was corrected.
- * the LCSB bullets are drafted, not dictated: they still need Isfaaq's sign-off.
- */
-
 export const IDENTITY = {
   // the preferred written form everywhere public; fullName is for formal documents only
   name: 'Isfaaq M. F. Emambocus',
@@ -32,7 +26,7 @@ export type Role = {
   readonly id: string
   readonly title: string
   readonly org: string
-  // short form for the progress rail, which has no room for a full institution name
+  // short form for the progress rail: a full institution name overruns it
   readonly short: string
   readonly place: string
   readonly period: string
@@ -167,7 +161,6 @@ export type Project = {
   readonly stack: readonly string[]
   readonly body: string
   readonly repo: string
-  // the pair of banners from the project's own repo, in public/projects
   readonly bannerDark: string
   readonly bannerLight: string
 }

@@ -23,10 +23,8 @@ function Moon() {
   )
 }
 
-/*
- * shows the theme you would switch to, not the one you are in, which is the
- * convention people already read correctly without a label.
- */
+// shows the theme you would switch to, not the one you are in. people read that convention
+// correctly without a label
 export function ThemeToggle() {
   const current = useTheme()
   const next = current === 'dark' ? 'light' : 'dark'

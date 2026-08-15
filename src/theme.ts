@@ -8,7 +8,7 @@ const KEY = 'theme'
 /*
  * half the crossfade. the DOM colours interpolate across the full 2x window via the
  * @property transition in index.css; the field dips out over the first half, swaps at
- * the bottom, and comes back over the second. keep this in step with that transition.
+ * the bottom, and comes back over the second. keep the two in step.
  */
 export const THEME_FADE_MS = 220
 
@@ -17,12 +17,7 @@ const SURFACE: Record<Theme, string> = {
   light: '#f6f6f3',
 }
 
-/*
- * the single source of theme truth, shared by the DOM and the particle field.
- * an inline script in index.html has already resolved and applied the theme before
- * first paint, so this reads back off the element rather than deciding again and
- * risking a mismatch.
- */
+// an inline script in index.html already applied the theme before first paint; read it back
 function initial(): Theme {
   if (typeof document === 'undefined') return 'dark'
   return document.documentElement.dataset.theme === 'light' ? 'light' : 'dark'
@@ -31,10 +26,10 @@ function initial(): Theme {
 export const theme = { current: initial() }
 
 /*
- * what the canvas should be drawing. it lags `theme` by half the crossfade so the
- * particle palette and blending mode swap while the field is at the bottom of its dip,
- * where the swap cannot be seen. blending is the reason this exists: additive and
- * normal cannot be interpolated, so the change has to be hidden rather than eased.
+ * what the canvas should be drawing. it lags `theme` by half the crossfade, which puts
+ * the palette and blending swap at the bottom of the field's dip, where it cannot be
+ * seen. blending is the reason this exists: additive and normal cannot be interpolated,
+ * and a change that cannot be eased has to be hidden.
  */
 export const renderTheme = { current: initial() }
 

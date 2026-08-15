@@ -4,10 +4,8 @@ import { PAD, Section } from './Section'
 
 const slug = (repo: string) => repo.replace('https://github.com/', '')
 
-/*
- * the dark banner in both themes: it is a flat panel in the project's own palette, so it
- * reads as an object sitting on the surface rather than dissolving into it.
- */
+// the dark banner in both themes. a flat panel in the project's own palette sits on the
+// surface as an object; the matching one dissolves into it
 function Banner({ project }: { readonly project: Project }) {
   return (
     <img
@@ -38,7 +36,7 @@ export function Projects() {
             >
               <Banner project={project} />
 
-              {/* the banner carries the name, so the heading is only here for the outline */}
+              {/* the banner carries the name; this heading is only here for the outline */}
               <h3 className="sr-only">{project.name}</h3>
 
               <div className="mt-6 flex items-baseline justify-between gap-4">

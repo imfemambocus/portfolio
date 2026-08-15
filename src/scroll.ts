@@ -5,13 +5,13 @@ import Lenis from 'lenis'
 gsap.registerPlugin(ScrollTrigger)
 
 /*
- * the single source of scroll truth. this module is the only thing in the app
- * listening to scroll; everything animated reads from `scroll`. independent
- * listeners are what make scroll-driven sites desync and feel broken.
+ * the single source of scroll truth. this module is the only thing in the app listening
+ * to scroll; everything animated reads from `scroll`. independent listeners are what make
+ * scroll-driven sites desync.
  *
- * `morph` is a fractional layout index (0 .. LAYOUTS.length - 1) rather than raw
- * page progress, so a form stays settled while you read its section instead of
- * drifting the whole way down the page.
+ * `morph` is a fractional layout index (0 .. LAYOUTS.length - 1), not raw page progress.
+ * a form therefore stays settled while you read its section instead of drifting the whole
+ * way down the page.
  */
 export const scroll = { progress: 0, morph: 0, max: 0 }
 

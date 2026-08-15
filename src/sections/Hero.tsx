@@ -28,12 +28,7 @@ export function Hero() {
     return () => clearInterval(id)
   }, [])
 
-  /*
-   * gsap.context, and revert() rather than kill(), because StrictMode runs this twice
-   * in dev. kill() stops a from() tween but leaves the target at its start values, so
-   * the second run records opacity 0 as the destination and the element never appears.
-   * revert() restores the original inline styles, so the second run starts clean.
-   */
+  // revert(), never kill(). see useReveal for what kill() does to a doubled StrictMode effect
   useEffect(() => {
     const el = root.current
     if (prefersReducedMotion || !el) return
@@ -101,15 +96,15 @@ export function Hero() {
           <span className="sr-only">{IDENTITY.name}, full-stack engineer</span>
 
           {/*
-            no upper bound on the size: a fixed one stops the type growing while the field,
-            which is placed as a fraction of the viewport, keeps spreading out, and on a 4k
-            screen that left half the page dead between them.
+            no upper bound on the size. a cap stops the type growing while the field, placed
+            as a fraction of the viewport, keeps spreading: at 4k that leaves half the page
+            dead between the two.
 
-            the mask has to clear the glyphs, not hug the line box. Anton's ink overflows
-            its 0.82 line box by 0.034em at the top and 0.105em at the bottom (the Q tail),
-            so the padding pushes the clip edges past both and the negative margins cancel
-            it back out of the layout. overflow clips at the padding box, so this stays a
-            real mask: the chars still start fully outside it.
+            the mask has to clear the glyphs, not hug the line box. Anton's ink overflows its
+            0.82 line box by 0.034em at the top and 0.105em at the bottom (the Q tail). the
+            padding pushes the clip edges past both and the negative margins cancel it back
+            out of the layout. overflow clips at the padding box, so this is still a real
+            mask, and the chars still start fully outside it.
           */}
           <span
             aria-hidden="true"
@@ -121,16 +116,17 @@ export function Hero() {
           </span>
 
           {/*
-            the margin is two corrections in one number, both of them measured off the
-            rendered pixels rather than off the boxes. the greeting ink starts 0.0289em
-            inside its box and the mono I starts 0.0737em inside its own, so boxes that
-            line up leave the I overhanging the G. then the G is round: it holds its
-            extreme for the middle 60% of the cap height and retreats to 1.5% of that
-            height inside on average, so a stem set flush with the extreme reads as
-            sticking out under the curve. the optical allowance is 2% of the greeting.
-            sizing this line as a fraction of the greeting keeps one ratio between them,
-            so the single margin holds at every width. the 11px floor is the exception,
-            and it puts the I 1.3px further right than it wants under 400px.
+            two corrections in one number, both measured off rendered pixels rather than off
+            the boxes. the greeting ink starts 0.0289em inside its box and the mono I starts
+            0.0737em inside its own, so boxes that line up leave the I overhanging the G.
+            then the G is round: it holds its extreme for the middle 60% of the cap height
+            and sits 1.5% of that height inside on average, and a stem set flush with the
+            extreme reads as sticking out under the curve. the optical allowance for that is
+            2% of the greeting.
+
+            one ratio between the two sizes is what makes a single margin hold at every
+            width, hence this line sized in em. the 11px floor breaks it under 400px and puts
+            the I 1.3px further right than it wants.
           */}
           <span
             aria-hidden="true"

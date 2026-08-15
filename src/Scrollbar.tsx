@@ -5,13 +5,13 @@ const INSET = 14
 const MIN_THUMB = 48
 
 /*
- * the native scrollbar is hidden in index.css and replaced by this, because no native
- * one can float: `overlay` is long dead, and both `scrollbar-width: thin` and webkit
- * scrollbar styling still reserve a gutter, which would shift the layout.
+ * index.css hides the native scrollbar and this stands in for it. no native one can
+ * float: `overlay` is long dead, and `scrollbar-width: thin` and webkit scrollbar styling
+ * both still reserve a gutter. the layout shifts by that gutter's width.
  *
- * it is a real control, not just an indicator, so the thumb is draggable. it is not
- * focusable and is aria-hidden: keyboard scrolling already works natively, and a tab
- * stop here would be a duplicate with nothing to announce.
+ * a real control rather than an indicator. the thumb drags. not focusable, and
+ * aria-hidden: keyboard scrolling already works natively, and a tab stop here would be a
+ * duplicate with nothing to announce.
  */
 export function Scrollbar() {
   const thumb = useRef<HTMLDivElement>(null)
@@ -84,9 +84,9 @@ export function Scrollbar() {
   }
 
   /*
-   * always mounted, hidden by class rather than unmounted: the effect needs the element
-   * to measure the page, so returning null while "not scrollable" would mean it could
-   * never discover that the page does in fact scroll.
+   * always mounted, hidden by class rather than unmounted. the effect measures the page
+   * through this element, and returning null while "not scrollable" leaves it with
+   * nothing to measure, so it could never discover that the page does in fact scroll.
    */
   return (
     <div

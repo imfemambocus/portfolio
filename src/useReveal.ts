@@ -4,12 +4,12 @@ import { prefersReducedMotion } from './scroll'
 
 /*
  * fades and lifts anything marked [data-reveal] inside the returned ref as it enters.
- * under reduced motion nothing is touched, which leaves the content in its natural
- * visible state rather than stranded at opacity 0.
+ * reduced motion touches nothing at all, which leaves the content in its natural visible
+ * state rather than stranded at opacity 0.
  *
- * gsap.context and revert() rather than kill(): StrictMode runs effects twice in dev,
- * and kill() leaves a from() tween's targets at their start values, so the second run
- * records opacity 0 as the destination and the content never appears.
+ * gsap.context and revert(), never kill(). StrictMode runs effects twice in dev, and
+ * kill() leaves a from() tween's targets sitting at their start values: the second run
+ * then records opacity 0 as the destination and animates 0 to 0, forever.
  */
 export function useReveal<T extends HTMLElement>() {
   const ref = useRef<T>(null)

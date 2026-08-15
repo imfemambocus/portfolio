@@ -31,7 +31,7 @@ export function Scene() {
       <ParticleField />
       {!prefersReducedMotion && <CameraDrift />}
 
-      {/* bloom only brightens, so on an off-white page it washes the field out instead of glowing */}
+      {/* bloom only brightens. on an off-white page it washes the field out instead of glowing */}
       {current === 'dark' && (
         <EffectComposer>
           {/* levels caps how far the mip chain spreads the glow. the default reaches most of
