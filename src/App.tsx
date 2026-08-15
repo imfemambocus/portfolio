@@ -1,3 +1,4 @@
+import { Analytics } from '@vercel/analytics/react'
 import { lazy, Suspense, useEffect } from 'react'
 import { initScroll } from './scroll'
 import { Scrollbar } from './Scrollbar'
@@ -41,6 +42,7 @@ export function App() {
       </main>
 
       <Scrollbar />
+      <Analytics />
     </>
   )
 }
