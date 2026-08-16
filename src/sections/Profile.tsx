@@ -8,9 +8,9 @@ export function Profile() {
   return (
     <Section id="profile" className={`flex min-h-screen items-center py-32 ${PAD}`}>
       <div ref={ref} className="max-w-3xl">
-        <p data-reveal className="label">
+        <h2 data-reveal className="label">
           01 / Profile
-        </p>
+        </h2>
 
         {PROFILE.map((paragraph, index) => (
           <p

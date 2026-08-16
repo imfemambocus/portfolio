@@ -24,9 +24,9 @@ export function Projects() {
   return (
     <Section id="projects" className={`flex min-h-screen items-center py-32 ${PAD}`}>
       <div ref={ref} className="w-full">
-        <p data-reveal className="label">
+        <h2 data-reveal className="label">
           04 / Selected work
-        </p>
+        </h2>
 
         {/* two cards per row of three columns: the empty one is where the clumps sit */}
         <div data-reveal className="mt-14 grid gap-x-12 gap-y-16 lg:grid-cols-3">

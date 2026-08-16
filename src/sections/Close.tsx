@@ -15,9 +15,9 @@ export function Close() {
   return (
     <Section id="contact" className={`flex min-h-screen items-center py-32 ${PAD}`}>
       <div ref={ref} className="w-full">
-        <p data-reveal className="label">
+        <h2 data-reveal className="label">
           05 / Education
-        </p>
+        </h2>
 
         <div data-reveal className="mt-8 grid gap-8 sm:grid-cols-2 lg:max-w-3xl">
           {EDUCATION.map((entry) => (

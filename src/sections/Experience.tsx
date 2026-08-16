@@ -29,7 +29,7 @@ function RoleBody({ role }: { readonly role: Role }) {
 function StaticList() {
   return (
     <div className={`py-32 ${PAD}`}>
-      <p className="label">02 / Experience</p>
+      <h2 className="label">02 / Experience</h2>
       <div className="mt-14 space-y-24">
         {ROLES.map((role) => (
           <article key={role.id}>
@@ -70,7 +70,7 @@ function Stepper() {
     <div ref={tall} className="relative h-[440vh]">
       <div className={`sticky top-0 flex h-screen items-center ${PAD}`}>
         <div className="w-full">
-          <p className="label">02 / Experience</p>
+          <h2 className="label">02 / Experience</h2>
 
           <div className="relative mt-10 min-h-104">
             {ROLES.map((role, index) => (
