@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import { SplitText } from 'gsap/SplitText'
 import { HERO_META, IDENTITY } from '../content'
+import { ENTRANCE_DELAY, onArm } from '../preloader'
 import { prefersReducedMotion } from '../scroll'
 import { ThemeToggle } from '../ThemeToggle'
 import { PAD, Section } from './Section'
@@ -28,33 +29,47 @@ export function Hero() {
     return () => clearInterval(id)
   }, [])
 
-  // revert(), never kill(). see useReveal for what kill() does to a doubled StrictMode effect
+  /*
+   * the entrance is armed by the preloader, not by the mount. gsap.from applies its start
+   * values in the effect, one paint after react has drawn the finished hero, so an entrance
+   * that builds on mount is preceded by a frame of the completed thing.
+   *
+   * revert(), never kill(). see useReveal for what kill() does to a doubled StrictMode effect
+   */
   useEffect(() => {
     const el = root.current
     if (prefersReducedMotion || !el) return
 
     let split: SplitText | undefined
+    let ctx: gsap.Context | undefined
 
-    const ctx = gsap.context(() => {
-      const lines = el.querySelectorAll('[data-name]')
-      if (lines.length === 0) return
+    const stopWaiting = onArm(() => {
+      ctx = gsap.context(() => {
+        const lines = el.querySelectorAll('[data-name]')
+        if (lines.length === 0) return
 
-      split = new SplitText(lines, { type: 'chars' })
+        split = new SplitText(lines, { type: 'chars' })
 
-      gsap
-        .timeline({ delay: 0.15 })
-        .from('[data-rule]', { scaleX: 0, duration: 1.3, ease: 'power3.inOut', stagger: 0.1 })
-        // 135 not 108: the chars have to clear the padded mask, not just the line box
-        .from(split.chars, { yPercent: 135, duration: 1.2, ease: 'expo.out', stagger: 0.055 }, 0.15)
-        .from(
-          '[data-fade]',
-          { y: 14, opacity: 0, duration: 0.8, ease: 'power3.out', stagger: 0.06 },
-          0.5,
-        )
-    }, el)
+        gsap
+          .timeline({ delay: ENTRANCE_DELAY })
+          .from('[data-rule]', { scaleX: 0, duration: 1.3, ease: 'power3.inOut', stagger: 0.1 })
+          // 135 not 108: the chars have to clear the padded mask, not just the line box
+          .from(
+            split.chars,
+            { yPercent: 135, duration: 1.2, ease: 'expo.out', stagger: 0.055 },
+            0.15,
+          )
+          .from(
+            '[data-fade]',
+            { y: 14, opacity: 0, duration: 0.8, ease: 'power3.out', stagger: 0.06 },
+            0.5,
+          )
+      }, el)
+    })
 
     return () => {
-      ctx.revert()
+      stopWaiting()
+      ctx?.revert()
       split?.revert()
     }
   }, [])
