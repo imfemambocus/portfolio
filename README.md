@@ -195,7 +195,8 @@ middle 60% of the cap height and then curves away, ending 26px inside that point
 4K. A flat stem set exactly on the extreme reads as sticking out under the curve, so the second line
 carries a further 2% of the greeting's size as optical allowance. It is sized as a fraction of the
 greeting rather than in its own units, which keeps one ratio between the two and lets the single
-margin hold at every width.
+margin hold at every width. The margin is an em of that smaller line, and in pixels it comes to
+`0.0489 * greeting - 0.0737 * line`, so changing either size means working it out again.
 
 ## Reduced motion
 
