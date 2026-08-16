@@ -125,13 +125,15 @@ export function Hero() {
             2% of the greeting.
 
             one ratio between the two sizes is what makes a single margin hold at every
-            width, hence this line sized in em. the 11px floor breaks it under 400px and puts
-            the I 1.3px further right than it wants.
+            width, hence this line sized in em. in px the shift is
+            0.0489 * greeting - 0.0737 * line, so a change of either size wants the margin
+            derived again. the 10px floor breaks the ratio under 1190px and puts the I up to
+            1.9px further right than it wants.
           */}
           <span
             aria-hidden="true"
             data-fade
-            className="mt-5 ml-[0.237em] block font-mono uppercase tracking-[0.28em] text-mist text-[max(0.6875rem,0.157em)]"
+            className="mt-5 ml-[0.334em] block font-mono uppercase tracking-[0.28em] text-mist text-[max(0.625rem,0.12em)]"
           >
             I measure what I build
           </span>
