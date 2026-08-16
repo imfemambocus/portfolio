@@ -119,6 +119,7 @@ src/
   scroll.ts               the only scroll listener in the app
   pointer.ts              the only pointer listener in the app
   theme.ts                light and dark, shared by the DOM and the canvas
+  preloader.ts            covers the load, and arms the entrance behind it
   Scene.tsx               canvas, camera drift, bloom
   Scrollbar.tsx           the floating scrollbar, drawn rather than styled
   particles/
@@ -154,8 +155,8 @@ the text never waits on it.
 rather than by the hardware, so there are no hard edges for it to smooth.
 
 Generating the six forms and packing them into the texture is a single task of roughly 200ms at
-startup. It runs after first paint, because the scene is lazy-loaded, so the text is already on
-screen and readable while it happens.
+startup. It runs after first paint, because the scene is lazy-loaded, and it lands inside the load
+cover described below rather than in front of anything you are trying to read.
 
 ## Light and dark
 
@@ -198,6 +199,27 @@ greeting rather than in its own units, which keeps one ratio between the two and
 margin hold at every width. The margin is an em of that smaller line, and in pixels it comes to
 `0.0489 * greeting - 0.0737 * line`, so changing either size means working it out again.
 
+## The load
+
+The page used to flicker on arrival, and per-frame sampling gave the reason. React paints the hero
+in its finished state, and GSAP applies the timeline's start values one paint later, so you saw a
+complete hero, then an empty one, then the entrance. That is inherent to running `gsap.from` from an
+effect, and none of it shows up in a build.
+
+So the load is covered. The panel lives in `index.html` rather than in React, because it has to
+paint on the very first frame, before the bundle has parsed. It carries a hairline loading track and
+waits on the fonts with a floor under it, so it reads as a beat rather than a blink, and the
+entrance is built while the panel still covers the page. The start values land out of sight and only
+then move.
+
+The panel parts rather than fading, and that is the second measurement. Fading paper over paper
+sounds free, but partial alpha floors a level in the compositor: on a 4K screen the surface came out
+`rgb(5,5,5)` in hard full-width bands against the page's `rgb(7,7,7)`, one 8-bit step that is
+roughly 18% of the actual luminance down at that end of the curve. So the exit is two opaque halves.
+The loading track draws out into a full-width hairline, the page splits along it, and each half
+carries a hairline off the top and the bottom while the hero rises into the gap. No partial alpha
+ever touches the surface.
+
 ## Reduced motion
 
 `prefers-reduced-motion` gets a genuinely different build rather than the animated site with the
@@ -207,6 +229,7 @@ motion switched off, which tends to leave content stranded at `opacity: 0`:
 - Turbulence goes to zero and the particle count drops to 22,000
 - The Experience section renders as a plain stacked list instead of a sticky stepper
 - The cursor no longer perturbs the field, the camera stops drifting, and the field stops swaying
+- The load cover has no sweep and no exit: it is simply gone once the page is ready
 
 All content lives in the DOM in reading order regardless of scroll state, there is a skip link, and
 the focus ring is visible.
