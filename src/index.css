@@ -12,8 +12,13 @@
   /*
    * true neutrals, equal channels. a few points of extra blue is invisible on an LCD
    * and reads as a cool cast on an OLED, where black is genuinely black.
+   *
+   * the surface is pure black because a wide-gamut monitor profile compresses the
+   * near-black ramp: #070707 lands on 5 through the colour conversion and on 7 without
+   * it, so any region a compositor leaves unconverted reads as a lighter band. zero is
+   * the one value both paths agree on.
    */
-  --color-paper: #070707;
+  --color-paper: #000000;
   --color-ink: #f6f6f3;
   --color-mist: #8a8a85;
   --color-haze: #262626;
@@ -39,7 +44,7 @@
 @property --color-paper {
   syntax: '<color>';
   inherits: true;
-  initial-value: #070707;
+  initial-value: #000000;
 }
 @property --color-ink {
   syntax: '<color>';
