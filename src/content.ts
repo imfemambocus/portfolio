@@ -18,7 +18,7 @@ export const HERO_META = [
 ] as const
 
 export const PROFILE = [
-  'Seven years building production web applications, from a Mauritian web agency shipping sixty sites a month to enterprise frontends for Volkswagen, Pampers and Novartis.',
+  'Seven years building production web applications, now the ones that hold a lot of data: large interactive tables, charting, and query layers at scale.',
   'Now at the LCSB, building data-heavy interfaces for biomedical research. Frontend-leaning, but I own products end to end.',
 ] as const
 
