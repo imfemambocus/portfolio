@@ -160,16 +160,23 @@ cover described below rather than in front of anything you are trying to read.
 
 ## Light and dark
 
-The site opens dark and remembers what you pick from the toggle in the hero. Both themes are
-off-white and off-black rather than pure: dark particles on light, light particles on dark.
+The site opens dark and remembers what you pick from the toggle in the hero. Light is an off-white
+page carrying dark particles. Dark is a pure black page carrying light ones.
 
 On dark, the field's two greys are exactly neutral, and that is deliberate rather than lazy.
 Additive blending clips dense areas to white while the sparse fringe keeps the colour of the
 individual points, so whichever channel leads by even a few values becomes a coloured glow around
 every cluster. The field tracked the page's slightly warm text colour at one point and wore a
-visible yellow cast for it. The page surface is a true neutral for the same reason: a few extra
-values of blue in an off-black is invisible on an LCD and reads as a tint on an OLED, where black
-is genuinely black.
+visible yellow cast for it. The greys drawn on the page follow the same rule: a few extra values of
+blue in an off-black is invisible on an LCD and reads as a tint on an OLED, where black is
+genuinely black.
+
+The surface under them is zero, and that came from a measurement rather than a preference. A
+wide-gamut monitor compresses the near-black end of the ramp, and the browser converts its
+rasterised tiles into that profile while leaving some composited regions alone, so one near-black
+can arrive at two values in a single frame. On the 4K OLED here, #070707 records as 5,5,5 through
+the conversion and as 7,7,7 without it, and both turned up side by side in hard full-width bands
+during the page load. Zero is the only value the two paths agree on.
 
 Beyond colour, it is not a palette swap either. The field is drawn with additive blending, which
 only ever brightens, so on a light page it would be invisible. Light mode switches the material to
