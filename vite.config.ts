@@ -39,6 +39,7 @@ function noscriptMirror(): string {
         `<h3>${escape(project.name)}</h3>` +
         `<p>${escape(project.kind)}, ${escape(project.updated)}. ${escape(project.stack.join(', '))}.</p>` +
         `<p>${escape(project.body)}</p>` +
+        (project.site ? `<p><a href="${escape(project.site)}">${escape(project.site)}</a></p>` : '') +
         `<p><a href="${escape(project.repo)}">${escape(project.repo)}</a></p>`,
     ),
 
