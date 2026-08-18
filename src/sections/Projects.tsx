@@ -3,6 +3,7 @@ import { useReveal } from '../useReveal'
 import { PAD, Section } from './Section'
 
 const slug = (repo: string) => repo.replace('https://github.com/', '')
+const host = (site: string) => site.replace(/^https:\/\/(www\.)?/, '').replace(/\/$/, '')
 
 // the dark banner in both themes. a flat panel in the project's own palette sits on the
 // surface as an object; the matching one dissolves into it
@@ -58,15 +59,29 @@ export function Projects() {
                 ))}
               </ul>
 
-              <a
-                href={project.repo}
-                target="_blank"
-                rel="noreferrer"
-                aria-label={`${project.name} source code on GitHub`}
-                className="mt-6 inline-block self-start font-mono text-xs text-mist underline decoration-haze decoration-1 underline-offset-4 transition-colors hover:text-ink hover:decoration-accent"
-              >
-                {slug(project.repo)}
-              </a>
+              <div className="mt-6 flex flex-wrap items-baseline gap-x-6 gap-y-3 font-mono">
+                {project.site && (
+                  <a
+                    href={project.site}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={`Visit the ${project.name} website`}
+                    className="text-sm text-accent underline decoration-accent decoration-1 underline-offset-4 transition-colors hover:text-ink hover:decoration-ink"
+                  >
+                    {host(project.site)}
+                  </a>
+                )}
+
+                <a
+                  href={project.repo}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={`${project.name} source code on GitHub`}
+                  className="text-xs text-mist underline decoration-haze decoration-1 underline-offset-4 transition-colors hover:text-ink hover:decoration-accent"
+                >
+                  {slug(project.repo)}
+                </a>
+              </div>
             </article>
           ))}
         </div>

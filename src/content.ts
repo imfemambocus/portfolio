@@ -161,6 +161,8 @@ export type Project = {
   readonly stack: readonly string[]
   readonly body: string
   readonly repo: string
+  // the project's own deployed site, where it has one
+  readonly site?: string
   readonly bannerDark: string
   readonly bannerLight: string
 }
@@ -174,6 +176,7 @@ export const PROJECTS: readonly Project[] = [
     stack: ['React', 'TypeScript', 'Ark UI', 'Tailwind v4'],
     body: 'React components for the interfaces that hold a lot of data: tables, filter bars, command palettes, long forms. A command copies the source into your project instead of adding a dependency, and one attribute on the root element moves every component between comfortable, compact and dense.',
     repo: 'https://github.com/imfemambocus/sley-ui',
+    site: 'https://sley-ui.dev/',
     bannerDark: '/projects/sley-ui-dark.webp',
     bannerLight: '/projects/sley-ui-light.webp',
   },
@@ -185,6 +188,7 @@ export const PROJECTS: readonly Project[] = [
     stack: ['react-three-fiber', 'GLSL', 'GSAP', 'Lenis'],
     body: 'The site you are reading. One field of 160,000 particles takes a different form for every section, so a single element evolves the whole way down instead of each section animating on its own. Every form is a tile in one float texture and the morph runs in a vertex shader, so scrolling costs no CPU work.',
     repo: 'https://github.com/imfemambocus/portfolio',
+    site: 'https://www.imfemambocus.com/',
     bannerDark: '/projects/portfolio-dark.webp',
     bannerLight: '/projects/portfolio-light.webp',
   },
