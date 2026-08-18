@@ -9,6 +9,7 @@ export const IDENTITY = {
   github: 'https://github.com/imfemambocus',
   linkedin: 'https://www.linkedin.com/in/isfaaqemambocus-softwareengineer/',
   x: 'https://x.com/IMFEmambocus',
+  avatar: '/avatar.webp',
 } as const
 
 export const HERO_META = [
